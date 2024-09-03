@@ -1,5 +1,5 @@
 "use client"
-import { Stage, Layer, Rect } from "react-konva"
+import { Stage, Layer, Rect } from "./my_canvas"
 
 export default function MiniMapPanel({
   size,

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 import { Icons } from "@/shared/icons"
 import { useMemo, useRef, useState } from "react"
 
-import { Stage, Layer, Rect } from "react-konva"
+import { Stage, Layer, Rect } from "./my_canvas"
 import ColorPicker from "./color_panel"
 import MiniMapPanel from "./mini_map_panel"
 

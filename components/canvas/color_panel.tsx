@@ -1,10 +1,8 @@
 "use client"
 
-import { cn } from "@/lib/utils"
-import { Icons } from "@/shared/icons"
-import { useRef, useState } from "react"
+import { useState } from "react"
 
-import { Stage, Layer, Rect } from "react-konva"
+import { Stage, Layer, Rect } from "./my_canvas"
 
 const sixteenColorPalette = [
   "#000000", // Black
@@ -40,7 +38,6 @@ export default function ColorPicker({
   let cols = panelWidth / colorSize
   let rows = Math.floor(colors.length / cols) + 1
   let panelHeight = rows * colorSize
-  console.log(panelHeight)
   return (
     <div
       className="flex flex-row flex-wrap bg-white"
