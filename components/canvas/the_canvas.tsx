@@ -61,9 +61,7 @@ const PixelCanvas = () => {
     const uri = stageRef.current.toDataURL() // 导出为 data URL
     downloadURI(
       uri,
-      `pixel-${exportRatio * size[0]}x${
-        exportRatio * size[1]
-      }-${new Date().getTime()}.png`
+      `pixel-${exportRatio * size[0]}x${exportRatio * size[1]}.png`
     ) // 调用下载函数
   }
   const downloadURI = (uri: string, name: string) => {
