@@ -68,7 +68,7 @@ export const useConfigStore = create<IConfigState & IConfigAction>()(
       }
     },
     {
-      version: 1,
+      version: 1.1,
       name: "__DB__CONFIG_DATA",
     }
   )

@@ -1,4 +1,11 @@
-import { LucideProps, Pencil, Eraser, Paintbrush, Trash2 } from "lucide-react"
+import {
+  LucideProps,
+  Pencil,
+  Eraser,
+  Paintbrush,
+  Trash2,
+  Move,
+} from "lucide-react"
 
 export const Icons = {
   pencel: Pencil,
@@ -6,4 +13,5 @@ export const Icons = {
 
   brush: Paintbrush,
   trash: Trash2,
+  move: Move,
 }
