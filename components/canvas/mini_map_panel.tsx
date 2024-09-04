@@ -5,17 +5,17 @@ export default function MiniMapPanel({
   size,
   pixels,
 }: {
-  size: number[]
+  size: { width: number; height: number }
   pixels: any[]
 }) {
   const miniSize = 4
-  const miniCanvasWidth = size[0] * miniSize
-  const miniCanvasHeight = size[0] * miniSize
+  const miniCanvasWidth = size.width * miniSize
+  const miniCanvasHeight = size.height * miniSize
 
   return (
     <div className="minimapflex flex flex-col items-center ">
       <div className="h-[20px] text-[14px]">
-        {size[0]} x {size[1]}
+        {size.width} x {size.height}
       </div>
       <Stage
         className=" bg-white"
@@ -26,8 +26,8 @@ export default function MiniMapPanel({
           {pixels.map((pixel, index) => (
             <Rect
               key={index}
-              x={(index % size[0]) * miniSize}
-              y={Math.floor(index / size[1]) * miniSize}
+              x={(index % size.width) * miniSize}
+              y={Math.floor(index / size.height) * miniSize}
               width={miniSize}
               height={miniSize}
               fill={pixel.color === "clear" ? "rgba(0,0,0,.0)" : pixel.color}

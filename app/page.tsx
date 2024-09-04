@@ -1,4 +1,4 @@
-import TheCanvas from "@/components/canvas/the_canvas"
+import MainView from "./views/main"
 
 export default function Home() {
   return (
@@ -7,7 +7,7 @@ export default function Home() {
         <span className="text-[18px] font-semibold">Just a Pixel Art Tool</span>
         <span className="text-[12px] mt-1">1.0</span>
       </div>
-      <TheCanvas />
+      <MainView />
     </main>
   )
 }

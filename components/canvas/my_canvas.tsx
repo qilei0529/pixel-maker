@@ -47,6 +47,8 @@ export const Stage = forwardRef(
 
     const touchRef = useRef(false)
 
+    const touchTimerRef = useRef(null)
+
     useEffect(() => {
       const canvas: any = canvasRef.current
       const ctx = canvas.getContext("2d")
