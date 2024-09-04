@@ -62,7 +62,7 @@ export const useDataStore = create<IDataState & IDataAction>()(
 
         getData() {
           const { size, pixels, initData } = get()
-          if (pixels.length != size.width * size.height) {
+          if (size.width == 0 || pixels.length != size.width * size.height) {
             initData()
           }
           return get().pixels
