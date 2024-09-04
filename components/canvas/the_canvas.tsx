@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { useDataStore } from "@/client/stores/data"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { ILayerData, useDataStore } from "@/client/stores/data"
 
 import ColorPanel from "./color_panel"
 import MiniMapPanel from "./mini_map_panel"
@@ -14,6 +14,7 @@ import LayerPanel from "./layer_panel"
 
 export const PixelCanvas = () => {
   const size = useDataStore((state) => state.size)
+  const pixelMap = useDataStore((state) => state.pixelMap)
   const pixelSize = useDataStore((state) => state.pixelSize)
   const getData = useDataStore((state) => state.getData)
   const updatePixelAt = useDataStore((state) => state.updatePixelAt)
@@ -28,16 +29,37 @@ export const PixelCanvas = () => {
   const layers = useDataStore((state) => state.layers)
 
   const [layer, setLayer] = useState<number>(1)
+
   const addLayer = useDataStore((state) => state.addLayer)
+  const toggleHideLayer = useDataStore((state) => state.toggleHideLayer)
+  const moveLayer = useDataStore((state) => state.moveLayer)
+  const removeLayer = useDataStore((state) => state.removeLayer)
 
   useEffect(() => {
     console.log("init Data")
     setPixels(getData())
   }, [pixelSize, size, getData])
 
-  const clearAll = () => {
-    setPixels(clearData())
+  useEffect(() => {
+    let index = layers.findIndex((item) => {
+      return item.value == layer
+    })
+    if (index < 0) {
+      let first = layers[0]
+      setLayer(first.value)
+    }
+  }, [layers])
 
+  useEffect(() => {
+    setPixels(
+      Object.keys(pixelMap)
+        .map((key) => pixelMap[key])
+        .sort((a, b) => a.layer - b.layer)
+    )
+  }, [pixelMap])
+
+  const clearAll = () => {
+    clearData()
     setLayer(1)
   }
 
@@ -48,7 +70,7 @@ export const PixelCanvas = () => {
   const handleDraw = (pos: { x: number; y: number }, index: number) => {
     if (tool === "Pen" || tool == "Eraser") {
       let color = tool == "Pen" ? curColor : "clear"
-      setPixels(updatePixelAt(pos, color, layer))
+      updatePixelAt(pos, color, layer)
     }
   }
 
@@ -120,6 +142,7 @@ export const PixelCanvas = () => {
       offset={offset}
       pixels={pixels}
       layer={layer}
+      layers={layers}
       pixelSize={pixelSize}
       onDraw={handleDraw}
       onMove={handleMove}
@@ -138,6 +161,18 @@ export const PixelCanvas = () => {
         }}
         onSelectLayer={(layer) => {
           setLayer(layer)
+        }}
+        onRemoveLayer={(layer) => {
+          //
+          removeLayer(layer)
+        }}
+        onToggleHide={(layer) => {
+          //
+          toggleHideLayer(layer)
+        }}
+        onToggleLevel={(layer, index) => {
+          //
+          moveLayer(layer, index)
         }}
       />
     </>
@@ -171,9 +206,9 @@ export const PixelCanvas = () => {
         </div>
       </div>
       <div className="flex-1"></div>
-      <MiniMapPanel size={size} pixels={pixels} />
+      <MiniMapPanel layers={layers} size={size} pixels={pixels} />
       <div className="flex-1"></div>
-      <SavePanel size={size} pixels={pixels} />
+      <SavePanel layers={layers} size={size} pixels={pixels} />
     </>
   )
 

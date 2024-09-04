@@ -1,13 +1,15 @@
 import { useDataStore } from "@/client/stores/data"
-import { useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { Layer, Rect, Stage } from "./my_canvas"
 
 export default function SavePanel({
   size,
   pixels,
+  layers,
 }: {
   size: { width: number; height: number }
   pixels: any[]
+  layers: any[]
 }) {
   const stageRef = useRef<any>(null) // 使用 useRef 来获取 Stage 的引用
 
@@ -28,6 +30,14 @@ export default function SavePanel({
     link.click()
     document.body.removeChild(link)
   }
+
+  const layerVos = useMemo(() => {
+    let vos: any = {}
+    layers.forEach((item) => {
+      vos[item.value] = item
+    })
+    return vos
+  }, [layers])
 
   return (
     <div className="relative h-[120px] flex flex-col space-y-2 pb-4">
@@ -58,16 +68,25 @@ export default function SavePanel({
           height={exportRatio * size.height}
         >
           <Layer>
-            {pixels.map((pixel, index) => (
-              <Rect
-                key={index}
-                x={pixel.x * exportRatio}
-                y={pixel.y * exportRatio}
-                width={exportRatio}
-                height={exportRatio}
-                fill={pixel.color === "clear" ? "rgba(0,0,0,.0)" : pixel.color}
-              />
-            ))}
+            {pixels.map((pixel, index) => {
+              // check curLayer ishide
+              let layerItem = layerVos[pixel.layer]
+              let hide = layerItem?.hide
+              return (
+                <Rect
+                  key={index}
+                  x={pixel.x * exportRatio}
+                  y={pixel.y * exportRatio}
+                  width={exportRatio}
+                  height={exportRatio}
+                  fill={
+                    pixel.color === "clear" || hide
+                      ? "rgba(0,0,0,.0)"
+                      : pixel.color
+                  }
+                />
+              )
+            })}
           </Layer>
         </Stage>
       </div>

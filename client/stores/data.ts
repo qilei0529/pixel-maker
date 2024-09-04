@@ -13,12 +13,13 @@ type IDataState = {
 export type ILayerData = {
   name: string
   value: number
+  hide?: boolean
 }
 export type IPixelData = {
   color: string
   x: number
   y: number
-  layer?: number
+  layer: number
 }
 
 type IDataAction = {
@@ -37,6 +38,9 @@ type IDataAction = {
   setPixelSize: (size: number) => void
 
   addLayer: () => void
+  removeLayer: (layer: number) => void
+  moveLayer: (layer: number, index: number) => void
+  toggleHideLayer: (layer: number) => void
 }
 
 export const useDataStore = create<IDataState & IDataAction>()(
@@ -152,16 +156,99 @@ export const useDataStore = create<IDataState & IDataAction>()(
 
         addLayer() {
           const { layers } = get()
-          let length = layers.length
           let first = layers[0]
           let value = first.value + 1
           let layer = {
             name: `layer-${value}`,
             value: value,
           }
+
           set({
             layers: [layer, ...layers],
           })
+        },
+
+        removeLayer(layer) {
+          const { layers, pixelMap, saveData } = get()
+
+          if (layers.length === 1) {
+            return
+          }
+
+          set({
+            layers: layers.filter((item) => item.value !== layer),
+          })
+
+          // remove pixel
+          const newPixelMap: { [key: string]: IPixelData } = {}
+
+          Object.keys(pixelMap).forEach((key) => {
+            let item = pixelMap[key]
+            if (item.layer !== layer) {
+              newPixelMap[key] = item
+            }
+          })
+
+          saveData(newPixelMap)
+        },
+
+        toggleHideLayer(layer) {
+          const { layers } = get()
+          const newLayers = [...layers]
+          newLayers.forEach((item) => {
+            if (item.value == layer) {
+              item.hide = !item.hide
+            }
+          })
+          set({
+            layers: newLayers,
+          })
+        },
+
+        moveLayer(layer, index) {
+          const { layers, pixelMap, saveData } = get()
+          let indexAt = layers.findIndex((item) => {
+            return item.value == layer
+          })
+
+          if (indexAt < 0) {
+            console.log("not find")
+            return
+          }
+          const newLayers = [...layers]
+          let indexTo = indexAt - index
+          if (indexTo > newLayers.length - 1) {
+            console.log("top")
+            return
+          } else if (indexTo < 0) {
+            console.log("bottom")
+            return
+          }
+
+          let valueAt = newLayers[indexAt].value
+          let valueTo = newLayers[indexTo].value
+
+          newLayers[indexAt].value = valueTo
+          newLayers[indexTo].value = valueAt
+
+          set({
+            layers: newLayers.sort((a, b) => b.value - a.value),
+          })
+
+          // remove pixel
+          const newPixelMap: { [key: string]: IPixelData } = {}
+
+          Object.keys(pixelMap).forEach((key) => {
+            let item = pixelMap[key]
+            if (item.layer == valueAt) {
+              item.layer = valueTo
+            } else if (item.layer == valueTo) {
+              item.layer = valueAt
+            }
+            newPixelMap[key] = item
+          })
+
+          saveData(newPixelMap)
         },
       }
     },

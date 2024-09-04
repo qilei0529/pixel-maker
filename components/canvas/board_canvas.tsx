@@ -5,9 +5,8 @@ export default function BoardCanvas({
   size,
   pixels,
   pixelSize,
-
   layer,
-
+  layers,
   offset,
   onDraw,
   onMove,
@@ -17,6 +16,7 @@ export default function BoardCanvas({
   offset: { x: number; y: number }
   pixels: any[]
   layer: number
+  layers: any[]
   pixelSize: number
   onDraw?: (pos: { x: number; y: number }, index: number) => void
   onMove?: (size: { width: number; height: number }) => void
@@ -34,8 +34,11 @@ export default function BoardCanvas({
     return "rgba(255,255,255,0.5)"
   }
 
-  const getColor = (color: string, index: number) => {
+  const getColor = (color: string, index: number, isHide?: boolean) => {
     // reduce clear color for grid shadow display
+    if (isHide) {
+      return "transparent"
+    }
     if (color === "clear") {
       return "transparent"
     }
@@ -54,6 +57,14 @@ export default function BoardCanvas({
     }
     return newPixels
   }, [size, pixels])
+
+  const layerVos = useMemo(() => {
+    let vos: any = {}
+    layers.forEach((item) => {
+      vos[item.value] = item
+    })
+    return vos
+  }, [layers])
 
   return (
     <Stage
@@ -77,8 +88,14 @@ export default function BoardCanvas({
       </Layer>
       <Layer>
         {pixels.map((pixel, index) => {
-          let x = (pixel.x + (layer === pixel.layer ? offset.x : 0)) * pixelSize
-          let y = (pixel.y + (layer === pixel.layer ? offset.y : 0)) * pixelSize
+          let curLayer = layer === pixel.layer
+
+          let x = (pixel.x + (curLayer ? offset.x : 0)) * pixelSize
+          let y = (pixel.y + (curLayer ? offset.y : 0)) * pixelSize
+
+          // check curLayer ishide
+          let layerItem = layerVos[pixel.layer]
+          let hide = layerItem?.hide
           return (
             <Rect
               key={index}
@@ -86,7 +103,7 @@ export default function BoardCanvas({
               y={y}
               width={pixelSize}
               height={pixelSize}
-              fill={getColor(pixel.color, index)}
+              fill={getColor(pixel.color, index, hide)}
             />
           )
         })}

@@ -9,13 +9,20 @@ export default function LayerPanel({
   layers,
   onCreateLayer,
   onSelectLayer,
+  onRemoveLayer,
+  onToggleHide,
+  onToggleLevel,
 }: {
   layers: ILayerData[]
   layer: number
+  onToggleHide: (layer: number) => void
+  onToggleLevel: (layer: number, index: number) => void
   onCreateLayer: () => void
+  onRemoveLayer: (layer: number) => void
   onSelectLayer: (layer: number) => void
 }) {
-  let showTools = false
+  let showTools = true
+  let len = layers.length
   return (
     <>
       <div className="flex flex-row h-[32px] items-center text-[13px] font-semibold px-1">
@@ -30,7 +37,7 @@ export default function LayerPanel({
       </div>
 
       <div>
-        {layers.map((item) => {
+        {layers.map((item, index) => {
           const isSelected = layer === item.value
           return (
             <div
@@ -40,24 +47,48 @@ export default function LayerPanel({
                 onSelectLayer(item.value)
               }}
             >
-              <div className="flex flex-row  px-2 text-[12px] cursor-pointer items-center ">
-                {item.name}
+              <div
+                className={cn(
+                  "flex flex-row h-[20px] pl-1 text-[12px] cursor-pointer items-center ",
+                  isSelected ? "" : "hover:bg-gray-200"
+                )}
+              >
+                <div
+                  className="flex flex-row w-4 h-4 items-center justify-center cursor-pointer"
+                  onClick={() => {
+                    onToggleHide(item.value)
+                  }}
+                >
+                  {item.hide ? (
+                    <Icons.eye className="w-3 h-3 opacity-20" />
+                  ) : (
+                    <Icons.eye className="w-3 h-3" />
+                  )}
+                </div>
+                <span className="px-1">{item.name}</span>
                 <div className="flex-1"></div>
               </div>
               {showTools && isSelected && (
-                <div className="absolute top-0 right-0 flex space-x-[2px] px-1">
+                <div className="absolute h-[20px] top-0 right-0 flex flex-row items-center space-x-[2px] px-1">
                   <div
-                    className="flex flex-row w-4 h-4 items-center justify-center cursor-pointer"
+                    className={cn(
+                      "flex flex-row w-4 h-4 items-center justify-center cursor-pointer",
+                      index == 0 ? "opacity-0" : ""
+                    )}
                     onClick={() => {
-                      //
+                      onToggleLevel(item.value, 1)
                     }}
                   >
-                    <Icons.moveUp className="w-3 h-3" />
+                    <Icons.moveUp className={"w-3 h-3"} />
                   </div>
                   <div
-                    className="flex flex-row w-4 h-4 items-center justify-center cursor-pointer"
+                    className={cn(
+                      "flex flex-row w-4 h-4 items-center justify-center cursor-pointer",
+                      index == len - 1 ? "opacity-0" : ""
+                    )}
                     onClick={() => {
                       //
+                      onToggleLevel(item.value, -1)
                     }}
                   >
                     <Icons.moveUp className="w-3 h-3 rotate-180" />
@@ -67,6 +98,7 @@ export default function LayerPanel({
                     className="flex flex-row w-4 h-4 items-center justify-center cursor-pointer"
                     onClick={() => {
                       //
+                      onRemoveLayer(item.value)
                     }}
                   >
                     <Icons.trash className="w-3 h-3" />

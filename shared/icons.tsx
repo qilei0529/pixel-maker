@@ -7,6 +7,7 @@ import {
   Move,
   SquarePlus,
   ChevronUp,
+  Eye,
 } from "lucide-react"
 export const Icons = {
   pencel: Pencil,
@@ -17,6 +18,9 @@ export const Icons = {
   move: Move,
 
   moveUp: ChevronUp,
+
+  eye: Eye,
+
   create: SquarePlus,
 
   twitter: ({ ...props }: LucideProps) => (
