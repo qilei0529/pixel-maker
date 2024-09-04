@@ -63,8 +63,7 @@ export const PixelCanvas = () => {
   )
   let sider = (
     <>
-      <div className="text-[13px] font-semibold">Colors</div>
-      <ColorPicker color={curColor} onSelect={setColor} />
+      <ColorPicker color={curColor} onColorChange={setColor} />
     </>
   )
   let rightPanel = (
