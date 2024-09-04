@@ -15,6 +15,7 @@ export default function LayerPanel({
   onCreateLayer: () => void
   onSelectLayer: (layer: number) => void
 }) {
+  let showTools = false
   return (
     <>
       <div className="flex flex-row h-[32px] items-center text-[13px] font-semibold px-1">
@@ -34,15 +35,44 @@ export default function LayerPanel({
           return (
             <div
               key={item.value}
-              className={cn(
-                "px-2 text-[12px] cursor-pointer",
-                isSelected ? "bg-gray-300" : ""
-              )}
+              className={cn("relative group", isSelected ? "bg-gray-300" : "")}
               onClick={() => {
                 onSelectLayer(item.value)
               }}
             >
-              {item.name}
+              <div className="flex flex-row  px-2 text-[12px] cursor-pointer items-center ">
+                {item.name}
+                <div className="flex-1"></div>
+              </div>
+              {showTools && isSelected && (
+                <div className="absolute top-0 right-0 flex space-x-[2px] px-1">
+                  <div
+                    className="flex flex-row w-4 h-4 items-center justify-center cursor-pointer"
+                    onClick={() => {
+                      //
+                    }}
+                  >
+                    <Icons.moveUp className="w-3 h-3" />
+                  </div>
+                  <div
+                    className="flex flex-row w-4 h-4 items-center justify-center cursor-pointer"
+                    onClick={() => {
+                      //
+                    }}
+                  >
+                    <Icons.moveUp className="w-3 h-3 rotate-180" />
+                  </div>
+
+                  <div
+                    className="flex flex-row w-4 h-4 items-center justify-center cursor-pointer"
+                    onClick={() => {
+                      //
+                    }}
+                  >
+                    <Icons.trash className="w-3 h-3" />
+                  </div>
+                </div>
+              )}
             </div>
           )
         })}

@@ -6,8 +6,8 @@ import {
   Trash2,
   Move,
   SquarePlus,
+  ChevronUp,
 } from "lucide-react"
-
 export const Icons = {
   pencel: Pencil,
   eraser: Eraser,
@@ -16,6 +16,7 @@ export const Icons = {
   trash: Trash2,
   move: Move,
 
+  moveUp: ChevronUp,
   create: SquarePlus,
 
   twitter: ({ ...props }: LucideProps) => (

@@ -138,7 +138,7 @@ export const useDataStore = create<IDataState & IDataAction>()(
               x = item.x + offset.x
               y = item.y + offset.y
             }
-            const k = `${l}_${x}_${y}`
+            const k = `${item.layer}_${x}_${y}`
             newMap[k] = {
               color: item.color,
               x,

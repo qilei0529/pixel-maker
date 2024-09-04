@@ -37,6 +37,8 @@ export const PixelCanvas = () => {
 
   const clearAll = () => {
     setPixels(clearData())
+
+    setLayer(1)
   }
 
   let [curColor, setColor] = useState("black")
