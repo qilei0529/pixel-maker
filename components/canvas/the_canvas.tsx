@@ -31,17 +31,7 @@ const PixelCanvas = () => {
     Array.from({ length: size[0] * size[1] }, () => ({ color: "clear" }))
   )
 
-  const [isDrawing, setIsDrawing] = useState(false)
-  const handleMouseDown = () => {
-    setIsDrawing(true)
-  }
-
-  const handleMouseUp = () => {
-    setIsDrawing(false)
-  }
-
   const handleMouseMove = (event: any, index: number) => {
-    if (!isDrawing) return
     const newPixels = [...pixels]
     let color = tool == "Pen" ? curColor : "clear"
     newPixels[index].color = color // 或者用户选择的颜色
@@ -195,8 +185,6 @@ const PixelCanvas = () => {
                   width={pixelSize}
                   height={pixelSize}
                   fill={getColor(pixel.color, index)}
-                  onMouseDown={handleMouseDown}
-                  onMouseUp={handleMouseUp}
                   onMouseMove={(event) => handleMouseMove(event, index)}
                 />
               ))}

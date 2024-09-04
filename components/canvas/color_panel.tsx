@@ -56,6 +56,7 @@ export default function ColorPicker({
               height={colorSize}
               fill={color}
               onClick={() => onSelect(color)}
+              onMouseMove={() => onSelect(color)}
             />
           ))}
 
@@ -68,7 +69,6 @@ export default function ColorPicker({
               fill={curColor}
               stroke="black"
               strokeWidth={2}
-              onClick={() => onSelect(curColor)}
             />
           ) : null}
         </Layer>

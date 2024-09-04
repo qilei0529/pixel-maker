@@ -6,39 +6,6 @@ import React, {
   useRef,
 } from "react"
 
-export default function MyCanvas({
-  screenSize,
-  pixels,
-  pixelSize = 20,
-  className,
-}: {
-  screenSize: { width: number; height: number }
-  className?: string
-  pixelSize?: number
-  pixels: any[]
-}) {
-  return (
-    <div className={className}>
-      <Stage width={screenSize.width} height={screenSize.height}>
-        <Layer>
-          <Rect
-            x={0}
-            y={40}
-            width={20}
-            height={20}
-            fill="blue"
-            onMouseMove={() => {
-              //
-              console.log("bluuuuue")
-            }}
-          />
-        </Layer>
-        <Rect x={0} y={0} width={20} height={20} fill="red" />
-      </Stage>
-    </div>
-  )
-}
-
 export const Stage = forwardRef(
   (
     {
@@ -78,6 +45,8 @@ export const Stage = forwardRef(
       [key: string | "onMouseDown" | "onMouseUp" | "onMouseMove"]: any
     }>([])
 
+    const touchRef = useRef(false)
+
     useEffect(() => {
       const canvas: any = canvasRef.current
       const ctx = canvas.getContext("2d")
@@ -89,6 +58,7 @@ export const Stage = forwardRef(
         onMouseDown: [],
         onMouseMove: [],
         onMouseUp: [],
+        onMouseLeave: [],
         onClick: [],
       }
       // loop children
@@ -107,6 +77,7 @@ export const Stage = forwardRef(
                 strokeWidth = 1,
                 onMouseDown,
                 onMouseMove,
+                onMouseLeave,
                 onMouseUp,
                 onClick,
               } = child.props
@@ -132,11 +103,14 @@ export const Stage = forwardRef(
                 rect: { x, y, width, height },
                 handle: onMouseUp,
               })
+              eventRef.current["onMouseLeave"].push({
+                rect: { x, y, width, height },
+                handle: onMouseLeave,
+              })
               eventRef.current["onClick"].push({
                 rect: { x, y, width, height },
                 handle: onClick,
               })
-              // 如果有
             } else if (child.type === Layer) {
               loop(child.props.children)
             }
@@ -172,14 +146,15 @@ export const Stage = forwardRef(
 
       // 处理事件
       const handleMouseDown = (event: MouseEvent) => {
+        touchRef.current = true
         const rect = canvas.getBoundingClientRect()
         const x = event.clientX - rect.left
         const y = event.clientY - rect.top
-
         checkEvent(event, "onMouseDown", { x, y })
       }
 
       const handleMouseUp = (event: MouseEvent) => {
+        touchRef.current = false
         const rect = canvas.getBoundingClientRect()
         const x = event.clientX - rect.left
         const y = event.clientY - rect.top
@@ -187,6 +162,9 @@ export const Stage = forwardRef(
       }
 
       const handleMouseMove = (event: MouseEvent) => {
+        if (!touchRef.current) {
+          return
+        }
         const rect = canvas.getBoundingClientRect()
         const x = event.clientX - rect.left
         const y = event.clientY - rect.top
@@ -194,22 +172,32 @@ export const Stage = forwardRef(
       }
 
       const handleClick = (event: MouseEvent) => {
+        touchRef.current = false
         const rect = canvas.getBoundingClientRect()
         const x = event.clientX - rect.left
         const y = event.clientY - rect.top
         checkEvent(event, "onClick", { x, y })
       }
+      const handleCancel = (event: MouseEvent) => {
+        touchRef.current = false
+        const rect = canvas.getBoundingClientRect()
+        const x = event.clientX - rect.left
+        const y = event.clientY - rect.top
+        checkEvent(event, "onMouseEnd", { x, y })
+      }
 
+      canvas.addEventListener("click", handleClick)
       canvas.addEventListener("mousedown", handleMouseDown)
       canvas.addEventListener("mouseup", handleMouseUp)
       canvas.addEventListener("mousemove", handleMouseMove)
-      canvas.addEventListener("click", handleClick)
+      canvas.addEventListener("mouseleave", handleCancel)
 
       return () => {
         canvas.removeEventListener("click", handleClick)
         canvas.removeEventListener("mousedown", handleMouseDown)
         canvas.removeEventListener("mouseup", handleMouseUp)
         canvas.removeEventListener("mousemove", handleMouseMove)
+        canvas.removeEventListener("mouseleave", handleCancel)
       }
     }, [children])
 
@@ -233,6 +221,7 @@ export const Rect = (props: {
   strokeWidth?: string | number
   onMouseMove?: (event: MouseEvent) => void
   onMouseUp?: (event: MouseEvent) => void
+  onMouseLeave?: (event: MouseEvent) => void
   onMouseDown?: (event: MouseEvent) => void
   onClick?: (event: MouseEvent) => void
 }) => null
