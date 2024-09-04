@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { useDataStore } from "@/client/stores/data"
 
@@ -14,27 +14,30 @@ import Layout from "./layout"
 export const PixelCanvas = () => {
   const pixelSize = 20
   const size = useDataStore((state) => state.size)
+  const getData = useDataStore((state) => state.getData)
+  const updatePixelAt = useDataStore((state) => state.updatePixelAt)
+  const clearData = useDataStore((state) => state.clearData)
 
-  const [pixels, setPixels] = useState(
-    Array.from({ length: size.width * size.height }, () => ({ color: "clear" }))
-  )
+  const [pixels, setPixels] = useState<any[]>([])
+  const initData = () => {
+    setPixels(getData())
+  }
+
+  useEffect(() => {
+    console.log("init Data")
+    initData()
+  }, [])
 
   const clearAll = () => {
-    const newPixels = [...pixels]
-    newPixels.forEach((item) => {
-      item.color = "clear"
-    })
-    setPixels(newPixels)
+    setPixels(clearData())
   }
 
   let [curColor, setColor] = useState("black")
   let [tool, setTool] = useState<string>("Pen")
 
   const handleDraw = (index: number) => {
-    const newPixels = [...pixels]
     let color = tool == "Pen" ? curColor : "clear"
-    newPixels[index].color = color // 或者用户选择的颜色
-    setPixels(newPixels)
+    setPixels(updatePixelAt(index, color))
   }
 
   let header = (
