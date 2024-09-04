@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware"
 
 type IDataState = {
   pixels: any[]
+  pixelSize: number
   size: { width: number; height: number }
 }
 
@@ -11,11 +12,16 @@ type IPixelData = {
 }
 
 type IDataAction = {
+  initData: () => void
   getData: () => IPixelData[]
   updatePixelAt: (index: number, color: string) => IPixelData[]
   clearData: () => IPixelData[]
 
   saveData: (data: IPixelData[]) => void
+
+  setSize: (size: { width: number; height: number }) => void
+
+  setPixelSize: (size: number) => void
 }
 
 let _timer: any = null
@@ -25,21 +31,41 @@ export const useDataStore = create<IDataState & IDataAction>()(
     (set, get) => {
       return {
         pixels: [],
-        size: { width: 16, height: 16 },
-        getData() {
-          const { size, pixels } = get()
-          if (pixels.length == 0) {
-            let newPixels = Array.from(
-              { length: size.width * size.height },
-              () => ({
-                color: "clear",
-              })
-            )
-            set({
-              pixels: newPixels,
-            })
+        pixelSize: 20,
+        size: { width: 0, height: 0 },
+
+        initData() {
+          let { size, pixels } = get()
+          if (size.width == 0) {
+            size.width = 16
+            size.height = 16
           }
-          return pixels
+
+          // let count = 0
+          let newPixels = Array.from(
+            { length: size.width * size.height },
+            () => {
+              let color = "clear"
+              // count++
+              return {
+                color: color,
+              }
+            }
+          )
+
+          console.log(1111, size)
+          set({
+            size: size,
+            pixels: newPixels,
+          })
+        },
+
+        getData() {
+          const { size, pixels, initData } = get()
+          if (pixels.length != size.width * size.height) {
+            initData()
+          }
+          return get().pixels
         },
 
         updatePixelAt(index: number, color: string) {
@@ -74,6 +100,20 @@ export const useDataStore = create<IDataState & IDataAction>()(
           saveData(newPixels)
 
           return newPixels
+        },
+
+        setSize(size) {
+          set({
+            size,
+          })
+          const { initData } = get()
+          initData()
+        },
+
+        setPixelSize(size) {
+          set({
+            pixelSize: size,
+          })
         },
       }
     },

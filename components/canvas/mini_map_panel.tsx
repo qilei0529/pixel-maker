@@ -14,9 +14,6 @@ export default function MiniMapPanel({
 
   return (
     <div className="minimapflex flex flex-col items-center ">
-      <div className="h-[20px] text-[14px]">
-        {size.width} x {size.height}
-      </div>
       <Stage
         className=" bg-white"
         width={miniCanvasWidth}
