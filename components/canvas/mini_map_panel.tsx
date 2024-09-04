@@ -23,8 +23,8 @@ export default function MiniMapPanel({
           {pixels.map((pixel, index) => (
             <Rect
               key={index}
-              x={(index % size.width) * miniSize}
-              y={Math.floor(index / size.height) * miniSize}
+              x={pixel.x * miniSize}
+              y={pixel.y * miniSize}
               width={miniSize}
               height={miniSize}
               fill={pixel.color === "clear" ? "rgba(0,0,0,.0)" : pixel.color}

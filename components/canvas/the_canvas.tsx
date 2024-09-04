@@ -9,7 +9,7 @@ import SavePanel from "./save_button"
 import BoardCanvas from "./board_canvas"
 import HeadTool from "./head_tool"
 import Layout from "./layout"
-import { Input } from "../ui/input"
+import { MiniInput } from "./mini_input"
 
 export const PixelCanvas = () => {
   const size = useDataStore((state) => state.size)
@@ -19,6 +19,8 @@ export const PixelCanvas = () => {
   const clearData = useDataStore((state) => state.clearData)
   const setSize = useDataStore((state) => state.setSize)
   const setPixelSize = useDataStore((state) => state.setPixelSize)
+
+  const movePixels = useDataStore((state) => state.movePixels)
 
   const [pixels, setPixels] = useState<any[]>([])
 
@@ -33,10 +35,30 @@ export const PixelCanvas = () => {
 
   let [curColor, setColor] = useState("black")
   let [tool, setTool] = useState<string>("Pen")
+  let [offset, setOffset] = useState({ x: 0, y: 0 })
 
-  const handleDraw = (index: number) => {
-    let color = tool == "Pen" ? curColor : "clear"
-    setPixels(updatePixelAt(index, color))
+  const handleDraw = (pos: { x: number; y: number }, index: number) => {
+    if (tool === "Pen" || tool == "Eraser") {
+      let color = tool == "Pen" ? curColor : "clear"
+      setPixels(updatePixelAt(pos, color))
+    }
+  }
+
+  const handleMove = (size: { width: number; height: number }) => {
+    if (tool !== "Move") {
+      return
+    }
+    let x = Math.floor(size.width / pixelSize)
+    let y = Math.floor(size.height / pixelSize)
+    setOffset({ x, y })
+  }
+
+  const handleMoveEnd = (size: { width: number; height: number }) => {
+    if (tool !== "Move") {
+      return
+    }
+    setPixels(movePixels({ x: offset.x, y: offset.y }))
+    setOffset({ x: 0, y: 0 })
   }
 
   const updateSize = ({
@@ -87,9 +109,12 @@ export const PixelCanvas = () => {
   let content = (
     <BoardCanvas
       size={size}
+      offset={offset}
       pixels={pixels}
       pixelSize={pixelSize}
       onDraw={handleDraw}
+      onMove={handleMove}
+      onMoveEnd={handleMoveEnd}
     />
   )
   let sider = (
@@ -140,67 +165,6 @@ export const PixelCanvas = () => {
       content={content}
       sider={sider}
       rightPanel={rightPanel}
-    />
-  )
-}
-
-export function MiniInput({
-  onConfirm,
-  value,
-  ...others
-}: {
-  onConfirm: (event: HTMLInputElement) => void
-  value?: string | number
-  className?: string
-  placeholder?: string
-}) {
-  const inputRef = useRef<HTMLInputElement | null>(null)
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.value = `${value}`
-    }
-    setValue(value)
-  }, [value])
-
-  const [inputValue, setValue] = useState(value)
-
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.keyCode === 13) {
-        // 回车键被按下
-        console.log("Enter key pressed!", inputRef.current)
-        // 在这里执行你想要触发的事件逻辑
-        if (inputRef.current) {
-          onConfirm(inputRef.current)
-          inputRef.current.value = ""
-        }
-      }
-    }
-    const handleFocus = () => {
-      document.addEventListener("keydown", handleKeyPress)
-    }
-    const handleBlur = () => {
-      document.removeEventListener("keydown", handleKeyPress)
-    }
-    const inputElement = inputRef.current
-    if (inputElement) {
-      inputElement.addEventListener("focus", handleFocus)
-      inputElement.addEventListener("blur", handleBlur)
-    }
-    return () => {
-      if (inputElement) {
-        inputElement.removeEventListener("focus", handleFocus)
-        inputElement.removeEventListener("blur", handleBlur)
-      }
-    }
-  }, [])
-
-  return (
-    <Input
-      ref={inputRef}
-      value={inputValue}
-      onChange={(e) => setValue(e.target.value)}
-      {...others}
     />
   )
 }

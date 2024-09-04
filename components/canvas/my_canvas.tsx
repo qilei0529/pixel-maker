@@ -13,11 +13,21 @@ export const Stage = forwardRef(
       height,
       children,
       className,
+      onMouseMove,
+      onMouseMoveEnd,
     }: {
       width: number
       height: number
       className?: string
       children?: any
+      onMouseMove?: (
+        event: MouseEvent,
+        size: { width: number; height: number }
+      ) => void
+      onMouseMoveEnd?: (
+        event: MouseEvent,
+        size: { width: number; height: number }
+      ) => void
     },
     ref: any
   ) => {
@@ -46,6 +56,8 @@ export const Stage = forwardRef(
     }>([])
 
     const touchRef = useRef(false)
+
+    const touchMoveRef = useRef({ width: 0, height: 0 })
 
     useEffect(() => {
       const canvas: any = canvasRef.current
@@ -150,6 +162,7 @@ export const Stage = forwardRef(
         const rect = canvas.getBoundingClientRect()
         const x = event.clientX - rect.left
         const y = event.clientY - rect.top
+        touchMoveRef.current = { width: x, height: y }
         checkEvent(event, "onMouseDown", { x, y })
       }
 
@@ -158,7 +171,17 @@ export const Stage = forwardRef(
         const rect = canvas.getBoundingClientRect()
         const x = event.clientX - rect.left
         const y = event.clientY - rect.top
+        touchMoveRef.current = { width: 0, height: 0 }
+
         checkEvent(event, "onMouseUp", { x, y })
+
+        if (onMouseMoveEnd) {
+          let size = touchMoveRef.current ?? { width: 0, height: 0 }
+          onMouseMoveEnd?.(event, {
+            width: x - size.width,
+            height: y - size.height,
+          })
+        }
       }
 
       const handleMouseMove = (event: MouseEvent) => {
@@ -169,6 +192,14 @@ export const Stage = forwardRef(
         const x = event.clientX - rect.left
         const y = event.clientY - rect.top
         checkEvent(event, "onMouseMove", { x, y })
+
+        if (onMouseMove) {
+          let size = touchMoveRef.current ?? { width: 0, height: 0 }
+          onMouseMove?.(event, {
+            width: x - size.width,
+            height: y - size.height,
+          })
+        }
       }
 
       const handleClick = (event: MouseEvent) => {

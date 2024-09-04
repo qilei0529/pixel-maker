@@ -85,7 +85,6 @@ export function ColorAppender({
     let output = ""
     if (colorRegex.test(inputValue)) {
       const color = inputValue.length === 6 ? `#${inputValue}` : inputValue
-      console.log(color) // 输出处理后的颜色值
       output = color
     } else if (rgbaRegex.test(inputValue)) {
       const match: RegExpMatchArray | null = rgbaRegex.exec(inputValue)
@@ -95,7 +94,6 @@ export function ColorAppender({
         const b = parseInt(match[3], 10)
         const a = parseFloat(match[4])
         const color = `rgba(${r},${g},${b},${a})`
-        console.log(color) // 输出处理后的 rgba 值
         output = color
       }
     }

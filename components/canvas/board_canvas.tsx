@@ -1,45 +1,92 @@
+import { useMemo } from "react"
 import { Stage, Layer, Rect } from "./my_canvas"
 
 export default function BoardCanvas({
   size,
   pixels,
   pixelSize,
+
+  offset,
   onDraw,
+  onMove,
+  onMoveEnd,
 }: {
   size: { width: number; height: number }
+  offset: { x: number; y: number }
   pixels: any[]
   pixelSize: number
-  onDraw: (index: number) => void
+  onDraw?: (pos: { x: number; y: number }, index: number) => void
+  onMove?: (size: { width: number; height: number }) => void
+  onMoveEnd?: (size: { width: number; height: number }) => void
 }) {
   const canvasWidth = size.width * pixelSize
   const canvasHeight = size.height * pixelSize
 
-  const getColor = (color: String, index: number) => {
+  const getGridColor = (color: string, index: number) => {
     // reduce clear color for grid shadow display
-    if (color == "clear") {
-      const d = Math.floor(index / size.width)
-      if ((index + d) % 2 === 1) {
-        return "rgba(0,0,0,.1)"
-      }
-      return "rgba(255,255,255,0.5)"
+    const d = Math.floor(index / size.width)
+    if ((index + d) % 2 === 1) {
+      return "rgba(0,0,0,.1)"
     }
-    return color as any
+    return "rgba(255,255,255,0.5)"
   }
 
+  const getColor = (color: string, index: number) => {
+    // reduce clear color for grid shadow display
+    if (color === "clear") {
+      return "transparent"
+    }
+    return color
+  }
+
+  const boardPixels = useMemo(() => {
+    let newPixels: { x: number; y: number }[] = []
+    for (let y = 0; y < size.height; y++) {
+      for (let x = 0; x < size.width; x++) {
+        newPixels.push({
+          x,
+          y,
+        })
+      }
+    }
+    return newPixels
+  }, [size, pixels])
+
   return (
-    <Stage width={canvasWidth} height={canvasHeight}>
+    <Stage
+      width={canvasWidth}
+      height={canvasHeight}
+      onMouseMove={(e, size) => onMove?.(size)}
+      onMouseMoveEnd={(e, size) => onMoveEnd?.(size)}
+    >
       <Layer>
-        {pixels.map((pixel, index) => (
+        {boardPixels.map((pixel, index) => (
           <Rect
             key={index}
-            x={(index % size.width) * pixelSize}
-            y={Math.floor(index / size.width) * pixelSize}
+            x={pixel.x * pixelSize}
+            y={pixel.y * pixelSize}
             width={pixelSize}
             height={pixelSize}
-            fill={getColor(pixel.color, index)}
-            onMouseMove={(event) => onDraw(index)}
+            fill={getGridColor("clear", index)}
+            onMouseMove={(event) => onDraw?.({ x: pixel.x, y: pixel.y }, index)}
           />
         ))}
+      </Layer>
+      <Layer>
+        {pixels.map((pixel, index) => {
+          let x = (pixel.x + offset.x) * pixelSize
+          let y = (pixel.y + offset.y) * pixelSize
+          return (
+            <Rect
+              key={index}
+              x={x}
+              y={y}
+              width={pixelSize}
+              height={pixelSize}
+              fill={getColor(pixel.color, index)}
+            />
+          )
+        })}
       </Layer>
     </Stage>
   )

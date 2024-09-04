@@ -61,8 +61,8 @@ export default function SavePanel({
             {pixels.map((pixel, index) => (
               <Rect
                 key={index}
-                x={(index % size.width) * exportRatio}
-                y={Math.floor(index / size.height) * exportRatio}
+                x={pixel.x * exportRatio}
+                y={pixel.y * exportRatio}
                 width={exportRatio}
                 height={exportRatio}
                 fill={pixel.color === "clear" ? "rgba(0,0,0,.0)" : pixel.color}

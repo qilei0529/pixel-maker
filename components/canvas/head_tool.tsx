@@ -48,6 +48,15 @@ export default function HeadTool({
       >
         <Icons.eraser strokeWidth={2.5} className="relative w-5 h-5" />
       </div>
+      <div
+        className={cn(
+          "w-[40px] h-[40px] flex items-center justify-center  cursor-pointer",
+          tool === "Move" ? "bg-red-200" : "bg-gray-200"
+        )}
+        onClick={() => onToolChange("Move")}
+      >
+        <Icons.pencel strokeWidth={2.5} className="relative w-5 h-5" />
+      </div>
       <div className="flex-1"></div>
       <div
         className={cn(
