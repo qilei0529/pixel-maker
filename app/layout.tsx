@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
+import { GoogleAnalytics } from "@next/third-parties/google"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -17,6 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>{children}</body>
+      {process.env.NODE_ENV === "production" ? (
+        <GoogleAnalytics gaId="G-QV3SCKYHS1" />
+      ) : null}
     </html>
   )
 }
