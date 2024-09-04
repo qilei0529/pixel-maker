@@ -40,7 +40,7 @@ export default function HeadTool({
       >
         <Icons.pencel strokeWidth={2.5} className="relative w-5 h-5" />
         <span className="absolute bottom-0 right-0 text-[10px] w-[10px]">
-          E
+          B
         </span>
       </div>
       <div
@@ -52,7 +52,7 @@ export default function HeadTool({
       >
         <Icons.eraser strokeWidth={2.5} className="relative w-5 h-5" />
         <span className="absolute bottom-0 right-0 text-[10px] w-[10px]">
-          R
+          E
         </span>
       </div>
       <div
@@ -88,9 +88,9 @@ export default function HeadTool({
         onEvent={(type) => {
           // key
           if (type === "e") {
-            onToolChange("Pen")
-          } else if (type === "r") {
             onToolChange("Eraser")
+          } else if (type === "b") {
+            onToolChange("Pen")
           } else if (type === "v") {
             onToolChange("Move")
           }
@@ -107,7 +107,7 @@ const KeyBindBox = ({ onEvent }: { onEvent: (key: string) => void }) => {
       let key = event.key.toLowerCase()
       if (key === "e") {
         onEvent(key)
-      } else if (key === "r") {
+      } else if (key === "b") {
         onEvent(key)
       } else if (key === "v") {
         onEvent(key)

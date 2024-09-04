@@ -1,3 +1,4 @@
+import { version } from "@/lib/utils"
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
@@ -68,7 +69,7 @@ export const useConfigStore = create<IConfigState & IConfigAction>()(
       }
     },
     {
-      version: 1.1,
+      version: version,
       name: "__DB__CONFIG_DATA",
     }
   )

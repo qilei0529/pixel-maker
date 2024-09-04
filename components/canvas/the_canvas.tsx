@@ -3,13 +3,14 @@
 import { useEffect, useRef, useState } from "react"
 import { useDataStore } from "@/client/stores/data"
 
-import ColorPicker from "./color_panel"
+import ColorPanel from "./color_panel"
 import MiniMapPanel from "./mini_map_panel"
 import SavePanel from "./save_button"
 import BoardCanvas from "./board_canvas"
 import HeadTool from "./head_tool"
 import Layout from "./layout"
 import { MiniInput } from "./mini_input"
+import LayerPanel from "./layer_panel"
 
 export const PixelCanvas = () => {
   const size = useDataStore((state) => state.size)
@@ -23,6 +24,11 @@ export const PixelCanvas = () => {
   const movePixels = useDataStore((state) => state.movePixels)
 
   const [pixels, setPixels] = useState<any[]>([])
+
+  const layers = useDataStore((state) => state.layers)
+
+  const [layer, setLayer] = useState<number>(1)
+  const addLayer = useDataStore((state) => state.addLayer)
 
   useEffect(() => {
     console.log("init Data")
@@ -40,7 +46,7 @@ export const PixelCanvas = () => {
   const handleDraw = (pos: { x: number; y: number }, index: number) => {
     if (tool === "Pen" || tool == "Eraser") {
       let color = tool == "Pen" ? curColor : "clear"
-      setPixels(updatePixelAt(pos, color))
+      setPixels(updatePixelAt(pos, color, layer))
     }
   }
 
@@ -57,7 +63,7 @@ export const PixelCanvas = () => {
     if (tool !== "Move") {
       return
     }
-    setPixels(movePixels({ x: offset.x, y: offset.y }))
+    setPixels(movePixels({ x: offset.x, y: offset.y }, layer))
     setOffset({ x: 0, y: 0 })
   }
 
@@ -111,6 +117,7 @@ export const PixelCanvas = () => {
       size={size}
       offset={offset}
       pixels={pixels}
+      layer={layer}
       pixelSize={pixelSize}
       onDraw={handleDraw}
       onMove={handleMove}
@@ -119,7 +126,18 @@ export const PixelCanvas = () => {
   )
   let sider = (
     <>
-      <ColorPicker color={curColor} onColorChange={setColor} />
+      <ColorPanel color={curColor} onColorChange={setColor} />
+      <div className="h-4"></div>
+      <LayerPanel
+        layer={layer}
+        layers={layers}
+        onCreateLayer={() => {
+          addLayer()
+        }}
+        onSelectLayer={(layer) => {
+          setLayer(layer)
+        }}
+      />
     </>
   )
   let rightPanel = (

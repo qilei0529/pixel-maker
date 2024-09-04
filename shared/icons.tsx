@@ -5,6 +5,7 @@ import {
   Paintbrush,
   Trash2,
   Move,
+  SquarePlus,
 } from "lucide-react"
 
 export const Icons = {
@@ -14,4 +15,6 @@ export const Icons = {
   brush: Paintbrush,
   trash: Trash2,
   move: Move,
+
+  create: SquarePlus,
 }

@@ -6,6 +6,8 @@ export default function BoardCanvas({
   pixels,
   pixelSize,
 
+  layer,
+
   offset,
   onDraw,
   onMove,
@@ -14,6 +16,7 @@ export default function BoardCanvas({
   size: { width: number; height: number }
   offset: { x: number; y: number }
   pixels: any[]
+  layer: number
   pixelSize: number
   onDraw?: (pos: { x: number; y: number }, index: number) => void
   onMove?: (size: { width: number; height: number }) => void
@@ -74,8 +77,8 @@ export default function BoardCanvas({
       </Layer>
       <Layer>
         {pixels.map((pixel, index) => {
-          let x = (pixel.x + offset.x) * pixelSize
-          let y = (pixel.y + offset.y) * pixelSize
+          let x = (pixel.x + (layer === pixel.layer ? offset.x : 0)) * pixelSize
+          let y = (pixel.y + (layer === pixel.layer ? offset.y : 0)) * pixelSize
           return (
             <Rect
               key={index}

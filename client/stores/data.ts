@@ -1,14 +1,20 @@
+import { version } from "@/lib/utils"
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
 type IDataState = {
   pixels: IPixelData[]
   pixelMap: { [key: string]: IPixelData }
+  layers: ILayerData[]
   pixelSize: number
   size: { width: number; height: number }
 }
 
-type IPixelData = {
+export type ILayerData = {
+  name: string
+  value: number
+}
+export type IPixelData = {
   color: string
   x: number
   y: number
@@ -25,13 +31,12 @@ type IDataAction = {
     layer?: number
   ) => IPixelData[]
   movePixels: (by: { x: number; y: number }, layer?: number) => IPixelData[]
-
   clearData: (layer?: number) => IPixelData[]
-
   saveData: (data: { [key: string]: IPixelData }) => void
-
   setSize: (size: { width: number; height: number }) => void
   setPixelSize: (size: number) => void
+
+  addLayer: () => void
 }
 
 export const useDataStore = create<IDataState & IDataAction>()(
@@ -39,6 +44,12 @@ export const useDataStore = create<IDataState & IDataAction>()(
     (set, get) => {
       return {
         pixels: [],
+        layers: [
+          {
+            name: "layer-1",
+            value: 1,
+          },
+        ],
         pixelMap: {},
         pixelSize: 20,
         size: { width: 0, height: 0 },
@@ -90,6 +101,15 @@ export const useDataStore = create<IDataState & IDataAction>()(
         clearData() {
           const { pixels, saveData, getData, pixelMap } = get()
           saveData({})
+          // reset layer
+          set({
+            layers: [
+              {
+                name: "layer-1",
+                value: 1,
+              },
+            ],
+          })
           return []
         },
 
@@ -129,10 +149,24 @@ export const useDataStore = create<IDataState & IDataAction>()(
           saveData(newMap)
           return Object.keys(newMap).map((key) => newMap[key])
         },
+
+        addLayer() {
+          const { layers } = get()
+          let length = layers.length
+          let first = layers[0]
+          let value = first.value + 1
+          let layer = {
+            name: `layer-${value}`,
+            value: value,
+          }
+          set({
+            layers: [layer, ...layers],
+          })
+        },
       }
     },
     {
-      version: 1.1,
+      version: version,
       name: "__DB__PIXEL_DATA",
     }
   )
