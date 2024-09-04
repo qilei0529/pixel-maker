@@ -6,6 +6,7 @@ type IDataState = {
   pixels: IPixelData[]
   pixelMap: { [key: string]: IPixelData }
   layers: ILayerData[]
+  layer: number
   pixelSize: number
   size: { width: number; height: number }
 }
@@ -41,6 +42,8 @@ type IDataAction = {
   removeLayer: (layer: number) => void
   moveLayer: (layer: number, index: number) => void
   toggleHideLayer: (layer: number) => void
+
+  setLayer: (layer: number) => void
 }
 
 export const useDataStore = create<IDataState & IDataAction>()(
@@ -54,6 +57,7 @@ export const useDataStore = create<IDataState & IDataAction>()(
             value: 1,
           },
         ],
+        layer: 1,
         pixelMap: {},
         pixelSize: 20,
         size: { width: 0, height: 0 },
@@ -165,6 +169,14 @@ export const useDataStore = create<IDataState & IDataAction>()(
 
           set({
             layers: [layer, ...layers],
+            layer: layer.value,
+          })
+          return
+        },
+
+        setLayer(layer) {
+          set({
+            layer,
           })
         },
 
@@ -175,8 +187,11 @@ export const useDataStore = create<IDataState & IDataAction>()(
             return
           }
 
+          let index = layers.findIndex((item) => item.value == layer)
+          let newLayers = layers.filter((item) => item.value !== layer)
           set({
-            layers: layers.filter((item) => item.value !== layer),
+            layers: newLayers,
+            layer: newLayers[Math.max(0, index - 1)]?.value || layers[0].value,
           })
 
           // remove pixel
@@ -233,6 +248,7 @@ export const useDataStore = create<IDataState & IDataAction>()(
 
           set({
             layers: newLayers.sort((a, b) => b.value - a.value),
+            layer: valueTo,
           })
 
           // remove pixel

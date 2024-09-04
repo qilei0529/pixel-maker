@@ -43,16 +43,22 @@ export default function LayerPanel({
             <div
               key={item.value}
               className={cn("relative group", isSelected ? "bg-gray-300" : "")}
-              onClick={() => {
-                onSelectLayer(item.value)
-              }}
             >
               <div
                 className={cn(
                   "flex flex-row h-[20px] pl-1 text-[12px] cursor-pointer items-center ",
                   isSelected ? "" : "hover:bg-gray-200"
                 )}
+                onClick={() => {
+                  onSelectLayer(item.value)
+                }}
               >
+                <div className="w-[14px]"></div>
+                <span className="px-1">{item.name}</span>
+                <div className="flex-1"></div>
+              </div>
+
+              <div className="absolute h-[20px] top-0 left-0 px-1 flex flex-row items-center ">
                 <div
                   className="flex flex-row w-4 h-4 items-center justify-center cursor-pointer"
                   onClick={() => {
@@ -65,8 +71,6 @@ export default function LayerPanel({
                     <Icons.eye className="w-3 h-3" />
                   )}
                 </div>
-                <span className="px-1">{item.name}</span>
-                <div className="flex-1"></div>
               </div>
               {showTools && isSelected && (
                 <div className="absolute h-[20px] top-0 right-0 flex flex-row items-center space-x-[2px] px-1">

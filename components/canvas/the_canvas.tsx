@@ -28,9 +28,9 @@ export const PixelCanvas = () => {
 
   const layers = useDataStore((state) => state.layers)
 
-  const [layer, setLayer] = useState<number>(1)
-
+  const layer = useDataStore((state) => state.layer)
   const addLayer = useDataStore((state) => state.addLayer)
+  const setLayer = useDataStore((state) => state.setLayer)
   const toggleHideLayer = useDataStore((state) => state.toggleHideLayer)
   const moveLayer = useDataStore((state) => state.moveLayer)
   const removeLayer = useDataStore((state) => state.removeLayer)
@@ -39,16 +39,6 @@ export const PixelCanvas = () => {
     console.log("init Data")
     setPixels(getData())
   }, [pixelSize, size, getData])
-
-  useEffect(() => {
-    let index = layers.findIndex((item) => {
-      return item.value == layer
-    })
-    if (index < 0) {
-      let first = layers[0]
-      setLayer(first.value)
-    }
-  }, [layers])
 
   useEffect(() => {
     setPixels(
@@ -60,7 +50,6 @@ export const PixelCanvas = () => {
 
   const clearAll = () => {
     clearData()
-    setLayer(1)
   }
 
   let [curColor, setColor] = useState("black")
