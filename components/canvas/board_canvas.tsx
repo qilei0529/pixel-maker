@@ -83,6 +83,7 @@ export default function BoardCanvas({
             height={pixelSize}
             fill={getGridColor("clear", index)}
             onMouseMove={(event) => onDraw?.({ x: pixel.x, y: pixel.y }, index)}
+            onClick={(event) => onDraw?.({ x: pixel.x, y: pixel.y }, index)}
           />
         ))}
       </Layer>
