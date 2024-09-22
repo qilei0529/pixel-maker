@@ -63,6 +63,7 @@ export const Stage = forwardRef(
     const touchRef = useRef(false)
 
     const touchMoveRef = useRef({ width: 0, height: 0 })
+    const touchTypeRef = useRef({ type: "mouse", button: -1 })
 
     useEffect(() => {
       const canvas: any = canvasRef.current
@@ -144,7 +145,7 @@ export const Stage = forwardRef(
       const checkEvent = (
         event: MouseEvent,
         type: string,
-        pos: { x: number; y: number }
+        pos: RectTouchEvent
       ) => {
         let events = eventRef.current[type] ?? []
         events.forEach((item: { rect: any; handle: any }, index: number) => {
@@ -160,7 +161,7 @@ export const Stage = forwardRef(
                 rect.height
               )
             ) {
-              handle(event)
+              handle(event, pos)
             }
           }
         })
@@ -186,7 +187,15 @@ export const Stage = forwardRef(
         touchRef.current = true
         const { x, y } = getPosition(event)
         touchMoveRef.current = { width: x, height: y }
-        checkEvent(event, "onMouseDown", { x, y })
+        const type = touchTypeRef.current.type
+        const button = touchTypeRef.current.button
+
+        checkEvent(event, "onMouseDown", {
+          x,
+          y,
+          type,
+          button,
+        })
       }
 
       const handleMouseUp = (event: MouseEvent & TouchEvent) => {
@@ -211,8 +220,22 @@ export const Stage = forwardRef(
           return
         }
         const { x, y } = getPosition(event)
-        checkEvent(event, "onMouseMove", { x, y })
-        setLogger({ event: "move", pos: { x, y } })
+
+        const type = touchTypeRef.current.type
+        const button = touchTypeRef.current.button
+
+        checkEvent(event, "onMouseMove", {
+          x,
+          y,
+          type,
+          button,
+        })
+        setLogger({
+          event: "move",
+          type,
+          button,
+          pos: { x, y },
+        })
 
         if (onMouseMove) {
           let size = touchMoveRef.current ?? { width: 0, height: 0 }
@@ -234,6 +257,21 @@ export const Stage = forwardRef(
         checkEvent(event, "onMouseEnd", { x, y })
       }
 
+      const handlePoinerDown = (event: PointerEvent) => {
+        // 修改 pointer type
+        // pen change
+        touchTypeRef.current.type = event.pointerType
+        touchTypeRef.current.button = event.button
+      }
+
+      const handlePoinerUp = (event: PointerEvent) => {
+        // pen change
+        touchTypeRef.current.type = "none"
+        touchTypeRef.current.button = -1
+      }
+
+      canvas.addEventListener("pointerdown", handlePoinerDown)
+
       canvas.addEventListener("click", handleClick)
       canvas.addEventListener("mousedown", handleMouseDown)
       canvas.addEventListener("mouseup", handleMouseUp)
@@ -244,8 +282,12 @@ export const Stage = forwardRef(
       canvas.addEventListener("touchend", handleMouseUp)
       canvas.addEventListener("touchmove", handleMouseMove)
       canvas.addEventListener("touchcancel", handleCancel)
+      canvas.addEventListener("pointerup", handlePoinerUp)
 
       return () => {
+        canvas.removeEventListener("pointerdown", handlePoinerDown)
+        canvas.removeEventListener("pointerup", handlePoinerUp)
+
         canvas.removeEventListener("click", handleClick)
         canvas.removeEventListener("mousedown", handleMouseDown)
         canvas.removeEventListener("mouseup", handleMouseUp)
@@ -271,13 +313,20 @@ export const Stage = forwardRef(
             height: height,
           }}
         />
-        <div className="absolute hidden">{JSON.stringify(logger)}</div>
+        <div className="absolute">{JSON.stringify(logger)}</div>
       </div>
     )
   }
 )
 
 export const Layer = (props: { children: any }) => null
+
+export type RectTouchEvent = {
+  x: number
+  y: number
+  type?: string
+  button?: number
+}
 
 export const Rect = (props: {
   x: number
@@ -287,9 +336,9 @@ export const Rect = (props: {
   fill: string
   stroke?: string
   strokeWidth?: string | number
-  onMouseMove?: (event: MouseEvent) => void
-  onMouseUp?: (event: MouseEvent) => void
-  onMouseLeave?: (event: MouseEvent) => void
-  onMouseDown?: (event: MouseEvent) => void
-  onClick?: (event: MouseEvent) => void
+  onMouseMove?: (event: MouseEvent, touch: RectTouchEvent) => void
+  onMouseUp?: (event: MouseEvent, touch: RectTouchEvent) => void
+  onMouseLeave?: (event: MouseEvent, touch: RectTouchEvent) => void
+  onMouseDown?: (event: MouseEvent, touch: RectTouchEvent) => void
+  onClick?: (event: MouseEvent, touch: RectTouchEvent) => void
 }) => null

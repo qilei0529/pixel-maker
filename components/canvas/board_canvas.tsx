@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { Stage, Layer, Rect } from "./my_canvas"
+import { Stage, Layer, Rect, RectTouchEvent } from "./my_canvas"
 
 export default function BoardCanvas({
   size,
@@ -9,6 +9,7 @@ export default function BoardCanvas({
   layers,
   offset,
   onDraw,
+  onDrawEnd,
   onMove,
   onMoveEnd,
 }: {
@@ -18,7 +19,8 @@ export default function BoardCanvas({
   layer: number
   layers: any[]
   pixelSize: number
-  onDraw?: (pos: { x: number; y: number }, index: number) => void
+  onDraw?: (event: any, touch: RectTouchEvent) => void
+  onDrawEnd?: (event: any, touch: RectTouchEvent) => void
   onMove?: (size: { width: number; height: number }) => void
   onMoveEnd?: (size: { width: number; height: number }) => void
 }) {
@@ -56,7 +58,7 @@ export default function BoardCanvas({
       }
     }
     return newPixels
-  }, [size, pixels])
+  }, [size])
 
   const layerVos = useMemo(() => {
     let vos: any = {}
@@ -83,9 +85,18 @@ export default function BoardCanvas({
             width={pixelSize}
             height={pixelSize}
             fill={getGridColor("clear", index)}
-            onMouseDown={(event) => onDraw?.({ x: pixel.x, y: pixel.y }, index)}
-            onMouseMove={(event) => onDraw?.({ x: pixel.x, y: pixel.y }, index)}
-            onClick={(event) => onDraw?.({ x: pixel.x, y: pixel.y }, index)}
+            onMouseDown={(event, touch) =>
+              onDraw?.(event, { ...touch, x: pixel.x, y: pixel.y })
+            }
+            onMouseUp={(event, touch) =>
+              onDrawEnd?.(event, { ...touch, x: pixel.x, y: pixel.y })
+            }
+            onMouseMove={(event, touch) =>
+              onDraw?.(event, { ...touch, x: pixel.x, y: pixel.y })
+            }
+            onClick={(event, touch) =>
+              onDraw?.(event, { ...touch, x: pixel.x, y: pixel.y })
+            }
           />
         ))}
       </Layer>

@@ -11,6 +11,7 @@ import HeadTool from "./head_tool"
 import Layout from "./layout"
 import { MiniInput } from "./mini_input"
 import LayerPanel from "./layer_panel"
+import { RectTouchEvent } from "./my_canvas"
 
 export const PixelCanvas = () => {
   const size = useDataStore((state) => state.size)
@@ -56,12 +57,18 @@ export const PixelCanvas = () => {
   let [tool, setTool] = useState<string>("Pen")
   let [offset, setOffset] = useState({ x: 0, y: 0 })
 
-  const handleDraw = (pos: { x: number; y: number }, index: number) => {
+  const handleDraw = (event: Event, touch: RectTouchEvent) => {
     if (tool === "Pen" || tool == "Eraser") {
       let color = tool == "Pen" ? curColor : "clear"
-      updatePixelAt(pos, color, layer)
+      if (touch.type == "pen" && tool === "Pen") {
+        // check if button is 5 , 5 is Eraser
+        let touchTool = touch.button == 5 ? "Eraser" : "Pen"
+        color = touchTool == "Pen" ? curColor : "clear"
+      }
+      updatePixelAt({ x: touch.x, y: touch.y }, color, layer)
     }
   }
+  const handleDrawEnd = (event: Event, touch: RectTouchEvent) => {}
 
   const handleMove = (size: { width: number; height: number }) => {
     if (tool !== "Move") {
@@ -134,6 +141,7 @@ export const PixelCanvas = () => {
       layers={layers}
       pixelSize={pixelSize}
       onDraw={handleDraw}
+      onDrawEnd={handleDrawEnd}
       onMove={handleMove}
       onMoveEnd={handleMoveEnd}
     />
@@ -164,6 +172,8 @@ export const PixelCanvas = () => {
           moveLayer(layer, index)
         }}
       />
+
+      {/* <ParseCanvas /> */}
     </>
   )
   let rightPanel = (
@@ -210,5 +220,71 @@ export const PixelCanvas = () => {
       sider={sider}
       rightPanel={rightPanel}
     />
+  )
+}
+
+function ParseCanvas() {
+  const [imageSrc, setImageSrc] = useState<string | null>(null)
+  useEffect(() => {
+    const handlePaste = async (event: ClipboardEvent) => {
+      const clipboardItems = event.clipboardData?.items
+
+      if (clipboardItems) {
+        for (let i = 0; i < clipboardItems.length; i++) {
+          const item = clipboardItems[i]
+
+          // 如果剪贴板中的项目是图片
+          if (item.type.startsWith("image/")) {
+            const blob = item.getAsFile()
+            if (blob) {
+              const imageUrl = URL.createObjectURL(blob)
+
+              // 设置图片 URL 到 state 以便展示图片
+              setImageSrc(imageUrl)
+
+              // const img = new Image()
+              // img.onload = () => {
+              //   // 图片加载后获取像素信息
+              //   const canvas = document.createElement("canvas")
+              //   const context = canvas.getContext("2d")
+
+              //   if (context) {
+              //     canvas.width = img.width
+              //     canvas.height = img.height
+              //     context.drawImage(img, 0, 0)
+
+              //     // 提取像素信息
+              //     const imageData = context.getImageData(
+              //       0,
+              //       0,
+              //       img.width,
+              //       img.height
+              //     )
+              //     console.log("have imageData.data")
+              //     console.log(imageData.data) // 包含 RGBA 像素信息的数组
+              //   }
+              // }
+              // img.src = imageUrl
+            }
+          }
+        }
+      }
+    }
+
+    window.addEventListener("paste", handlePaste)
+
+    return () => {
+      window.removeEventListener("paste", handlePaste)
+    }
+  }, [])
+  return (
+    <div>
+      <h1>Paste an image here</h1>
+      {imageSrc ? (
+        <img src={imageSrc} alt="Pasted" style={{ maxWidth: "100%" }} />
+      ) : (
+        <p>No image pasted yet</p>
+      )}
+    </div>
   )
 }
