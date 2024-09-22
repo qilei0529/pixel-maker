@@ -68,6 +68,7 @@ export default function BoardCanvas({
 
   return (
     <Stage
+      className="select-none"
       width={canvasWidth}
       height={canvasHeight}
       onMouseMove={(e, size) => onMove?.(size)}
@@ -82,6 +83,7 @@ export default function BoardCanvas({
             width={pixelSize}
             height={pixelSize}
             fill={getGridColor("clear", index)}
+            onMouseDown={(event) => onDraw?.({ x: pixel.x, y: pixel.y }, index)}
             onMouseMove={(event) => onDraw?.({ x: pixel.x, y: pixel.y }, index)}
             onClick={(event) => onDraw?.({ x: pixel.x, y: pixel.y }, index)}
           />

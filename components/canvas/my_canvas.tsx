@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useImperativeHandle,
   useRef,
+  useState,
 } from "react"
 
 export const Stage = forwardRef(
@@ -156,21 +157,33 @@ export const Stage = forwardRef(
         })
       }
 
-      // 处理事件
-      const handleMouseDown = (event: MouseEvent) => {
-        touchRef.current = true
+      const getPosition = (event: MouseEvent & TouchEvent) => {
         const rect = canvas.getBoundingClientRect()
+        if (event.touches && event.touches.length) {
+          const touch = event.touches[0] // 获取第一个触摸点的信息
+          const x = touch.clientX - rect.left
+          const y = touch.clientY - rect.top
+          return { x, y }
+        }
+
         const x = event.clientX - rect.left
         const y = event.clientY - rect.top
+        return { x, y }
+      }
+
+      // 处理事件
+      const handleMouseDown = (event: MouseEvent & TouchEvent) => {
+        setLogger({ event: "down" })
+        touchRef.current = true
+        const { x, y } = getPosition(event)
         touchMoveRef.current = { width: x, height: y }
         checkEvent(event, "onMouseDown", { x, y })
       }
 
-      const handleMouseUp = (event: MouseEvent) => {
+      const handleMouseUp = (event: MouseEvent & TouchEvent) => {
+        setLogger({ event: "up" })
         touchRef.current = false
-        const rect = canvas.getBoundingClientRect()
-        const x = event.clientX - rect.left
-        const y = event.clientY - rect.top
+        const { x, y } = getPosition(event)
         touchMoveRef.current = { width: 0, height: 0 }
 
         checkEvent(event, "onMouseUp", { x, y })
@@ -184,14 +197,13 @@ export const Stage = forwardRef(
         }
       }
 
-      const handleMouseMove = (event: MouseEvent) => {
+      const handleMouseMove = (event: MouseEvent & TouchEvent) => {
         if (!touchRef.current) {
           return
         }
-        const rect = canvas.getBoundingClientRect()
-        const x = event.clientX - rect.left
-        const y = event.clientY - rect.top
+        const { x, y } = getPosition(event)
         checkEvent(event, "onMouseMove", { x, y })
+        setLogger({ event: "move", pos: { x, y } })
 
         if (onMouseMove) {
           let size = touchMoveRef.current ?? { width: 0, height: 0 }
@@ -202,18 +214,14 @@ export const Stage = forwardRef(
         }
       }
 
-      const handleClick = (event: MouseEvent) => {
+      const handleClick = (event: MouseEvent & TouchEvent) => {
         touchRef.current = false
-        const rect = canvas.getBoundingClientRect()
-        const x = event.clientX - rect.left
-        const y = event.clientY - rect.top
+        const { x, y } = getPosition(event)
         checkEvent(event, "onClick", { x, y })
       }
-      const handleCancel = (event: MouseEvent) => {
+      const handleCancel = (event: MouseEvent & TouchEvent) => {
         touchRef.current = false
-        const rect = canvas.getBoundingClientRect()
-        const x = event.clientX - rect.left
-        const y = event.clientY - rect.top
+        const { x, y } = getPosition(event)
         checkEvent(event, "onMouseEnd", { x, y })
       }
 
@@ -223,18 +231,30 @@ export const Stage = forwardRef(
       canvas.addEventListener("mousemove", handleMouseMove)
       canvas.addEventListener("mouseleave", handleCancel)
 
+      canvas.addEventListener("touchstart", handleMouseDown)
+      canvas.addEventListener("touchend", handleMouseUp)
+      canvas.addEventListener("touchmove", handleMouseMove)
+      canvas.addEventListener("touchcancel", handleCancel)
+
       return () => {
         canvas.removeEventListener("click", handleClick)
         canvas.removeEventListener("mousedown", handleMouseDown)
         canvas.removeEventListener("mouseup", handleMouseUp)
         canvas.removeEventListener("mousemove", handleMouseMove)
         canvas.removeEventListener("mouseleave", handleCancel)
-      }
-    }, [children])
 
+        canvas.removeEventListener("touchstart", handleMouseDown)
+        canvas.removeEventListener("touchend", handleMouseUp)
+        canvas.removeEventListener("touchmove", handleMouseMove)
+        canvas.removeEventListener("touchcancel", handleCancel)
+      }
+    }, [children, onMouseMove, onMouseMoveEnd])
+
+    const [logger, setLogger] = useState<any>({ event: "none" })
     return (
       <div className={className}>
         <canvas ref={canvasRef} width={width} height={height} />
+        <div className="absolute hidden">{JSON.stringify(logger)}</div>
       </div>
     )
   }
