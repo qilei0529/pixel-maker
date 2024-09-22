@@ -9,9 +9,9 @@ import SavePanel from "./save_button"
 import BoardCanvas from "./board_canvas"
 import HeadTool from "./head_tool"
 import Layout from "./layout"
-import { MiniInput } from "./mini_input"
 import LayerPanel from "./layer_panel"
 import { RectTouchEvent } from "./my_canvas"
+import { SizeSwitcher } from "./size_switcher"
 
 export const PixelCanvas = () => {
   const size = useDataStore((state) => state.size)
@@ -38,6 +38,7 @@ export const PixelCanvas = () => {
 
   useEffect(() => {
     console.log("init Data")
+    // alert(1)
     setPixels(getData())
   }, [pixelSize, size, getData])
 
@@ -100,11 +101,11 @@ export const PixelCanvas = () => {
     let d = Math.max(width ?? 0, height ?? 0)
 
     if (d > 40) {
-      setPixelSize(8)
+      setPixelSize(6)
     } else if (d > 30) {
-      setPixelSize(12)
-    } else if (d > 20) {
-      setPixelSize(16)
+      setPixelSize(10)
+    } else if (d > 15) {
+      setPixelSize(20)
     } else {
       setPixelSize(20)
     }
@@ -148,66 +149,49 @@ export const PixelCanvas = () => {
   )
   let sider = (
     <>
-      <ColorPanel color={curColor} onColorChange={setColor} />
-      <div className="h-4"></div>
-      <LayerPanel
-        layer={layer}
-        layers={layers}
-        onCreateLayer={() => {
-          addLayer()
-        }}
-        onSelectLayer={(layer) => {
-          setLayer(layer)
-        }}
-        onRemoveLayer={(layer) => {
-          //
-          removeLayer(layer)
-        }}
-        onToggleHide={(layer) => {
-          //
-          toggleHideLayer(layer)
-        }}
-        onToggleLevel={(layer, index) => {
-          //
-          moveLayer(layer, index)
-        }}
-      />
-
-      {/* <ParseCanvas /> */}
+      <div className="">
+        <ColorPanel color={curColor} onColorChange={setColor} />
+      </div>
+      <div className="flex-1 h-4"></div>
+      <div className="w-[132px] sm:w-auto">
+        <LayerPanel
+          layer={layer}
+          layers={layers}
+          onCreateLayer={() => {
+            addLayer()
+          }}
+          onSelectLayer={(layer) => {
+            setLayer(layer)
+          }}
+          onRemoveLayer={(layer) => {
+            //
+            removeLayer(layer)
+          }}
+          onToggleHide={(layer) => {
+            //
+            toggleHideLayer(layer)
+          }}
+          onToggleLevel={(layer, index) => {
+            //
+            moveLayer(layer, index)
+          }}
+        />
+      </div>
     </>
   )
   let rightPanel = (
     <>
-      <div className="h-[100px]">
-        <div className="h-2"></div>
-        <div className="flex flex-row justify-center">
-          <MiniInput
-            value={size.width}
-            className="w-[32px] text-center"
-            onConfirm={(elm) => {
-              let value = parseInt(elm.value, 10)
-              updateSize({
-                width: value,
-              })
-            }}
-          />
-          <span className="w-4 flex items-center justify-center">x</span>
-          <MiniInput
-            value={size.height}
-            className="w-[32px] text-center"
-            onConfirm={(elm) => {
-              let value = parseInt(elm.value, 10)
-              updateSize({
-                width: value,
-              })
-            }}
-          />
-        </div>
+      <div className="w-[120px] sm:w-auto flex flex-row justify-center items-center">
+        <SizeSwitcher size={size} onChange={updateSize} />
       </div>
       <div className="flex-1"></div>
-      <MiniMapPanel layers={layers} size={size} pixels={pixels} />
+      <div>
+        <MiniMapPanel layers={layers} size={size} pixels={pixels} />
+      </div>
       <div className="flex-1"></div>
-      <SavePanel layers={layers} size={size} pixels={pixels} />
+      <div className="w-[120px] sm:w-auto flex flex-row justify-center items-center">
+        <SavePanel layers={layers} size={size} pixels={pixels} />
+      </div>
     </>
   )
 

@@ -28,55 +28,29 @@ export default function Layout({
     }
     return width
   }, [size])
+  //
   return (
-    <div className="flex flex-col space-y-2">
-      <div className="tool-bar h-[60px] flex flex-row">
-        <div
-          style={{
-            width: sizeBarWidth + 40,
-          }}
-        ></div>
-        <div
-          className="flex flex-row space-x-2"
-          style={{
-            width: boardSize,
-          }}
-        >
-          {header}
+    <div className="relative overflow-auto">
+      <div className="flex flex-row">
+        <div className="sm:w-[180px]"></div>
+        <div className="sm:w-[24px]"></div>
+        <div className="">
+          <div className="flex flex-row space-x-2">{header}</div>
+          <div className="h-4 sm:h-6"></div>
+          <div className="p-4 bg-gray-100">{content}</div>
         </div>
+        <div className="sm:w-[24px]"></div>
+        <div className="sm:w-[120px]"></div>
       </div>
-      <div className="relative bg-gray-100 flex flex-row">
-        <div
-          style={{
-            width: sizeBarWidth,
-          }}
-        >
-          {sider}
-        </div>
-        <div
-          className="w-[40px] bg-gray-50"
-          style={{
-            height: boardSize,
-          }}
-        ></div>
-        <div
-          className="board flex items-center justify-center"
-          style={{
-            width: boardSize,
-            height: boardSize,
-          }}
-        >
-          {content}
-        </div>
-        <div
-          className="w-[40px] bg-gray-50"
-          style={{
-            height: boardSize,
-          }}
-        ></div>
-        <div className="flex flex-col items-center justify-center px-4 space-y-2">
+      <div className="relative sm:absolute flex flex-col top-0 right-0 bottom-0 bg-gray-100 sm:w-[120px]">
+        <div className="sm:h-[40px]"></div>
+        <div className="flex flex-row sm:flex-col mb-4 sm:mb-0 flex-1 sm:py-4">
           {rightPanel}
         </div>
+      </div>
+      <div className="relative sm:absolute flex flex-col top-0 left-0 bottom-0 bg-gray-100 sm:w-[180px]">
+        <div className="sm:h-[40px]"></div>
+        <div className="flex flex-row sm:flex-col flex-1">{sider}</div>
       </div>
     </div>
   )

@@ -11,7 +11,7 @@ export default function MiniMapPanel({
   pixels: any[]
   layers: any[]
 }) {
-  const miniSize = 4
+  const miniSize = size.width > 30 ? 2 : 4
   const miniCanvasWidth = size.width * miniSize
   const miniCanvasHeight = size.height * miniSize
 

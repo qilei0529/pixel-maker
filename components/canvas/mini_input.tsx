@@ -57,6 +57,7 @@ export function MiniInput({
       ref={inputRef}
       value={inputValue}
       onChange={(e) => setValue(e.target.value)}
+      onBlur={(e) => setValue(e.target.value)}
       {...others}
     />
   )

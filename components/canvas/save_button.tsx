@@ -40,10 +40,9 @@ export default function SavePanel({
   }, [layers])
 
   return (
-    <div className="relative h-[120px] flex flex-col space-y-2 pb-4">
-      <div className="flex-1"></div>
+    <div className="relative flex flex-row sm:flex-col space-x-1">
       <select
-        className="p-1 px-2 rounded-lg text-[12px]"
+        className="p-1 px-2 rounded-lg text-[14px]"
         value={exportRatio}
         onChange={(e) => setExportRatio(parseInt(e.target.value, 10))}
       >
@@ -51,14 +50,12 @@ export default function SavePanel({
         <option value={2}>2x</option>
         <option value={3}>3x</option>
         <option value={4}>4x</option>
-        <option value={8}>8x</option>
-        <option value={16}>16x</option>
       </select>
       <button
         className="p-1 px-2 bg-black hover:bg-blue-600 rounded-xl text-white text-[14px] font-semibold"
         onClick={handleSave}
       >
-        Save <span className="text-[10px]">.png</span>
+        Save
       </button>
       <div className="absolute top-0 left-0 hidden">
         <Stage

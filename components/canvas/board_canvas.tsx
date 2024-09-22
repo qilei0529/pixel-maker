@@ -70,7 +70,7 @@ export default function BoardCanvas({
 
   return (
     <Stage
-      className="select-none"
+      className="select-none flex items-center justify-center min-w-[320px] min-h-[320px]"
       width={canvasWidth}
       height={canvasHeight}
       onMouseMove={(e, size) => onMove?.(size)}

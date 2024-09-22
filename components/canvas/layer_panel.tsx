@@ -46,7 +46,7 @@ export default function LayerPanel({
             >
               <div
                 className={cn(
-                  "flex flex-row h-[20px] pl-1 text-[12px] cursor-pointer items-center ",
+                  "flex flex-row h-[24px] pl-1 text-[12px] cursor-pointer items-center ",
                   isSelected ? "" : "hover:bg-gray-200"
                 )}
                 onClick={() => {
@@ -58,7 +58,7 @@ export default function LayerPanel({
                 <div className="flex-1"></div>
               </div>
 
-              <div className="absolute h-[20px] top-0 left-0 px-1 flex flex-row items-center ">
+              <div className="absolute h-[24px] top-0 left-0 px-1 flex flex-row items-center ">
                 <div
                   className="flex flex-row w-4 h-4 items-center justify-center cursor-pointer"
                   onClick={() => {
@@ -73,7 +73,7 @@ export default function LayerPanel({
                 </div>
               </div>
               {showTools && isSelected && (
-                <div className="absolute h-[20px] top-0 right-0 flex flex-row items-center space-x-[2px] px-1">
+                <div className="absolute h-[24px] top-0 right-0 flex flex-row items-center space-x-[2px] px-1">
                   <div
                     className={cn(
                       "flex flex-row w-4 h-4 items-center justify-center cursor-pointer",
