@@ -3,6 +3,7 @@ import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from "react"
@@ -33,6 +34,9 @@ export const Stage = forwardRef(
     ref: any
   ) => {
     const canvasRef = useRef(null)
+    const ratio = useMemo(() => {
+      return window.devicePixelRatio ?? 2
+    }, [])
 
     useImperativeHandle(ref, () => canvasRef.current)
 
@@ -95,13 +99,18 @@ export const Stage = forwardRef(
                 onClick,
               } = child.props
               ctx.fillStyle = fill
-              ctx.fillRect(x, y, width, height)
+              ctx.fillRect(x * ratio, y * ratio, width * ratio, height * ratio)
 
               // 绘制边框
               if (stroke) {
                 ctx.strokeStyle = stroke
-                ctx.lineWidth = strokeWidth
-                ctx.strokeRect(x, y, width, height)
+                ctx.lineWidth = strokeWidth * ratio
+                ctx.strokeRect(
+                  x * ratio,
+                  y * ratio,
+                  width * ratio,
+                  height * ratio
+                )
               }
 
               eventRef.current["onMouseDown"].push({
@@ -248,12 +257,20 @@ export const Stage = forwardRef(
         canvas.removeEventListener("touchmove", handleMouseMove)
         canvas.removeEventListener("touchcancel", handleCancel)
       }
-    }, [children, onMouseMove, onMouseMoveEnd])
+    }, [children, onMouseMove, onMouseMoveEnd, ratio])
 
     const [logger, setLogger] = useState<any>({ event: "none" })
     return (
       <div className={className}>
-        <canvas ref={canvasRef} width={width} height={height} />
+        <canvas
+          ref={canvasRef}
+          width={width * ratio}
+          height={height * ratio}
+          style={{
+            width: width,
+            height: height,
+          }}
+        />
         <div className="absolute hidden">{JSON.stringify(logger)}</div>
       </div>
     )
