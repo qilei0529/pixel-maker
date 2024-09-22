@@ -313,7 +313,7 @@ export const Stage = forwardRef(
             height: height,
           }}
         />
-        <div className="absolute">{JSON.stringify(logger)}</div>
+        <div className="absolute hidden">{JSON.stringify(logger)}</div>
       </div>
     )
   }
