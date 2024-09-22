@@ -34,9 +34,7 @@ export const Stage = forwardRef(
     ref: any
   ) => {
     const canvasRef = useRef(null)
-    const ratio = useMemo(() => {
-      return window.devicePixelRatio ?? 2
-    }, [])
+    const [ratio] = useState(2)
 
     useImperativeHandle(ref, () => canvasRef.current)
 
