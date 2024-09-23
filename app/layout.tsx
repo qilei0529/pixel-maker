@@ -4,8 +4,8 @@ import { GoogleAnalytics } from "@next/third-parties/google"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "Pixel Kiki",
-  description: "Just a Pixel Art Tool",
+  title: "Pixel Cat",
+  description: "A Pixel Painting Tool, For child, For pixel game",
 }
 
 export const viewport: Viewport = {
