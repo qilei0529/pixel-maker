@@ -10,7 +10,7 @@ export default function Home() {
           <span className="text-[18px] font-semibold">Pixel Cat</span>
           <span className="text-[12px] mt-1">{version}</span>
           <span className="w-4"></span>
-          <span className="text-[12px] text-gray-400">
+          <span className="text-[12px] text-gray-400 hidden sm:block">
             A Pixel Painting Tool, for child, for pixel game, every thing pixel.
           </span>
         </div>
