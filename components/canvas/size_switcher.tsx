@@ -23,35 +23,10 @@ export const SizeSwitcher = ({
       >
         <option value={8}>8x8</option>
         <option value={16}>16x16</option>
+        <option value={24}>24x24</option>
         <option value={32}>32x32</option>
         <option value={48}>48x48</option>
       </select>
-    </div>
-  )
-  return (
-    <div className="flex flex-row justify-center">
-      <MiniInput
-        value={size.width}
-        className="w-[32px] text-center"
-        onConfirm={(elm) => {
-          let value = parseInt(elm.value, 10)
-          onChange({
-            width: value,
-          })
-          elm.blur()
-        }}
-      />
-      <span className="w-4 flex items-center justify-center">x</span>
-      <MiniInput
-        value={size.height}
-        className="w-[32px] text-center"
-        onConfirm={(elm) => {
-          let value = parseInt(elm.value, 10)
-          onChange({
-            width: value,
-          })
-        }}
-      />
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { version } from "@/lib/utils"
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
+import { INIT_DATA } from "./data.init"
 
 type IDataState = {
   pixels: IPixelData[]
@@ -63,14 +64,14 @@ export const useDataStore = create<IDataState & IDataAction>()(
         size: { width: 0, height: 0 },
 
         initData() {
-          let { size, pixels } = get()
-          if (size.width == 0) {
-            size.width = 16
-            size.height = 16
-          }
-
+          // let { size, pixels } = get()
+          // if (size.width == 0) {
+          //   size.width = 16
+          //   size.height = 16
+          // }
           set({
-            size: size,
+            // size: size,
+            ...INIT_DATA.state,
           })
         },
 

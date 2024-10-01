@@ -38,15 +38,8 @@ export const PixelCanvas = () => {
 
   useEffect(() => {
     console.log("init Data")
-    if (size.width) {
-      const data = getData()
-      setPixels(data)
-    } else {
-      updateSize({
-        width: 16,
-        height: 16,
-      })
-    }
+    const data = getData()
+    setPixels(data)
   }, [pixelSize, size, getData])
 
   useEffect(() => {
@@ -109,8 +102,10 @@ export const PixelCanvas = () => {
 
     if (d > 40) {
       setPixelSize(6)
-    } else if (d > 30) {
+    } else if (d > 24) {
       setPixelSize(10)
+    } else if (d > 20) {
+      setPixelSize(14)
     } else if (d > 15) {
       setPixelSize(20)
     } else {
