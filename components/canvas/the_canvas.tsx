@@ -118,7 +118,7 @@ export const PixelCanvas = () => {
 
     setSize({
       width: width ? limit(width) : size.width,
-      height: width ? limit(width) : size.width,
+      height: height ? limit(height) : size.height,
     })
   }
 
