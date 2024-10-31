@@ -1,5 +1,7 @@
 # Just a Pixel Tool
 
+[Pixel-CAT 2.0](./shot/SCR-20241101.png)
+
 ## 2.0
 
 - full screen size painting
