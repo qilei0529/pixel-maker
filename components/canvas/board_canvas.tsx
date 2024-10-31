@@ -59,10 +59,10 @@ export default function BoardCanvas({
     return <DashBoard size={size} viewSize={vSize} pixelSize={pixelSize} />
   }, [size, vSize, pixelSize])
 
-  const [offset, setOffset] = useState({ x: 0, y: 0 })
+  const [midOffset, setMidOffset] = useState({ x: 0, y: 0 })
   useEffect(() => {
     let ratio = pixelSize / viewPixelSize
-    setOffset({
+    setMidOffset({
       x: Math.floor((vSize.width / ratio - size.width) / 2),
       y: Math.floor((vSize.height / ratio - size.height) / 2),
     })
@@ -84,8 +84,8 @@ export default function BoardCanvas({
         onMouseMoveEnd={(e, size) => onMoveEnd?.(size)}
         onMouseDraw={(e, touch: RectTouchEvent) => {
           const pixel = {
-            x: Math.floor(touch.x / pixelSize - viewOffset.x),
-            y: Math.floor(touch.y / pixelSize - viewOffset.y),
+            x: Math.floor(touch.x / pixelSize - viewOffset.x - midOffset.x),
+            y: Math.floor(touch.y / pixelSize - viewOffset.y - midOffset.y),
           }
           onDraw?.(event, { ...touch, x: pixel.x, y: pixel.y })
         }}
@@ -95,10 +95,16 @@ export default function BoardCanvas({
             let curLayer = layer === pixel.layer
 
             let x =
-              (pixel.x + (curLayer ? moveOffset.x : 0) + viewOffset.x) *
+              (pixel.x +
+                (curLayer ? moveOffset.x : 0) +
+                viewOffset.x +
+                midOffset.x) *
               pixelSize
             let y =
-              (pixel.y + (curLayer ? moveOffset.y : 0) + viewOffset.y) *
+              (pixel.y +
+                (curLayer ? moveOffset.y : 0) +
+                viewOffset.y +
+                midOffset.y) *
               pixelSize
 
             // check curLayer ishide
@@ -118,7 +124,6 @@ export default function BoardCanvas({
         </Layer>
       </Stage>
       {board}
-
       <div
         className="absolute z-40 pointer-events-none border-[2px] border-red-600"
         style={{
@@ -126,11 +131,13 @@ export default function BoardCanvas({
           height: size.height * pixelSize,
           top: 0,
           left: 0,
-          transform: `translate(${offset.x * pixelSize}px, ${
-            offset.y * pixelSize
+          transform: `translate(${midOffset.x * pixelSize}px, ${
+            midOffset.y * pixelSize
           }px)`,
         }}
-      ></div>
+      >
+        <div className="absolute top-[-16px] left-[-2px] px-1 text-[12px] text-white bg-red-600 h-[16px] flex items-center rounded-t-sm">{`${size.width}x${size.height}`}</div>
+      </div>
     </div>
   )
 }
@@ -177,27 +184,27 @@ function DashBoard({
     // reduce clear color for grid shadow display
     let isGray = true
     isGray = (x + y) % 2 == 0
-    let size = {
-      width: vSize.width - 8,
-      height: vSize.height - 8,
-    }
     // if in export range
-    let pixelRadio = 1
-    let startX = (vSize.width - size.width * pixelRadio) / 2
-    let endX = startX + size.width * pixelRadio
+    // let size = {
+    //   width: vSize.width - 8,
+    //   height: vSize.height - 8,
+    // }
+    // let pixelRadio = 1
+    // let startX = (vSize.width - size.width * pixelRadio) / 2
+    // let endX = startX + size.width * pixelRadio
 
-    let startY = (vSize.height - size.height * pixelRadio) / 2
-    let endY = startY + size.height * pixelRadio
-    let isInShade = false
-    if (x > startX && x < endX && y > startY && y < endY) {
-      isInShade = true
-    }
-    if (!isInShade) {
-      if (isGray) {
-        return "rgba(125,125,125,0.5)"
-      }
-      return "rgba(0,0,0,.2)"
-    }
+    // let startY = (vSize.height - size.height * pixelRadio) / 2
+    // let endY = startY + size.height * pixelRadio
+    // let isInShade = false
+    // if (x > startX && x < endX && y > startY && y < endY) {
+    //   isInShade = true
+    // }
+    // if (!isInShade) {
+    //   if (isGray) {
+    //     return "rgba(125,125,125,0.5)"
+    //   }
+    //   return "rgba(0,0,0,.2)"
+    // }
 
     if (isGray) {
       return "rgba(0,0,0,.05)"

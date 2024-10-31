@@ -125,9 +125,11 @@ export const PixelCanvas = () => {
     })
   }, [])
 
+  const [midOffset, setMidOffset] = useState({ x: 0, y: 0 })
+
   useEffect(() => {
     let ratio = pixelSize / viewPixelSize
-    setOffset({
+    setMidOffset({
       x: Math.floor((viewSize.width / ratio - size.width) / 2),
       y: Math.floor((viewSize.height / ratio - size.height) / 2),
     })
@@ -194,12 +196,12 @@ export const PixelCanvas = () => {
   )
 
   let sider = (
-    <div className="flex flex-row sm:flex-col flex-1 p-3 bg-white rounded-r-2xl">
+    <div className="flex flex-col flex-1 p-3 bg-white rounded-r-2xl">
       <div className="">
         <ColorPanel color={curColor} onColorChange={setColor} />
       </div>
       <div className="flex-1 h-4"></div>
-      <div className="w-[132px] sm:w-auto">
+      <div className="">
         <LayerPanel
           layer={layer}
           layers={layers}
@@ -225,7 +227,7 @@ export const PixelCanvas = () => {
       </div>
       <div className="h-[20px]"></div>
       <div className="bg-gray-200">
-        <div className="w-[120px] sm:w-auto flex flex-row justify-center items-center p-2">
+        <div className="flex flex-row justify-center items-center p-2">
           <SizeSwitcher size={size} onChange={updateSize} />
         </div>
         <div className=" p-2">
@@ -236,12 +238,12 @@ export const PixelCanvas = () => {
             offset={offset}
           />
         </div>
-        <div className="w-[120px] sm:w-auto flex flex-row justify-center items-center p-2">
+        <div className="flex flex-row justify-center items-center p-2">
           <SavePanel
-            offset={{ x: 0, y: 0 }}
             layers={layers}
             size={size}
             pixels={pixels}
+            offset={offset}
           />
         </div>
       </div>

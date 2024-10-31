@@ -318,6 +318,7 @@ export const Stage = forwardRef(
     }, [children, onMouseMove, onMouseMoveEnd, ratio])
 
     const [logger, setLogger] = useState<any>({ event: "none" })
+
     return (
       <div className={className}>
         <canvas
@@ -329,7 +330,6 @@ export const Stage = forwardRef(
             height: height,
           }}
         />
-        <div className="absolute hidden">{JSON.stringify(logger)}</div>
       </div>
     )
   }

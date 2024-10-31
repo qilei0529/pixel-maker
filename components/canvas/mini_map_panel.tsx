@@ -6,6 +6,7 @@ export default function MiniMapPanel({
   size,
   pixels,
   layers,
+  offset,
 }: {
   size: { width: number; height: number }
   offset: { x: number; y: number }
@@ -39,8 +40,8 @@ export default function MiniMapPanel({
             return (
               <Rect
                 key={index}
-                x={pixel.x * miniSize}
-                y={pixel.y * miniSize}
+                x={(pixel.x + offset.x) * miniSize}
+                y={(pixel.y + offset.y) * miniSize}
                 width={miniSize}
                 height={miniSize}
                 fill={
