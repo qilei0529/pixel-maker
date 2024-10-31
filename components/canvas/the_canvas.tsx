@@ -165,6 +165,9 @@ export const PixelCanvas = () => {
             clearAll()
           } else if (type === "Color") {
             setShowColorPicker(!showColorPicker)
+            if (tool != "Pen") {
+              setTool("Pen")
+            }
           }
         }}
       />
