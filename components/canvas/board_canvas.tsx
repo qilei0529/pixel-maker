@@ -7,14 +7,16 @@ export default function BoardCanvas({
   pixelSize,
   layer,
   layers,
-  offset,
+  moveOffset,
+  viewOffset,
   onDraw,
   onDrawEnd,
   onMove,
   onMoveEnd,
 }: {
   size: { width: number; height: number }
-  offset: { x: number; y: number }
+  moveOffset: { x: number; y: number }
+  viewOffset: { x: number; y: number }
   pixels: any[]
   layer: number
   layers: any[]
@@ -24,13 +26,27 @@ export default function BoardCanvas({
   onMove?: (size: { width: number; height: number }) => void
   onMoveEnd?: (size: { width: number; height: number }) => void
 }) {
-  const canvasWidth = size.width * pixelSize
-  const canvasHeight = size.height * pixelSize
+  const screenSize = useMemo(() => {
+    return {
+      width: size.width * 20,
+      height: size.height * 20,
+    }
+  }, [size])
 
-  const getGridColor = (color: string, index: number) => {
+  const viewPixelSize = 20
+
+  const viewSize = useMemo(() => {
+    return {
+      width: Math.floor(screenSize.width / viewPixelSize),
+      height: Math.floor(screenSize.height / viewPixelSize),
+    }
+  }, [screenSize])
+
+  const getGridColor = (color: string, index: number, x: number, y: number) => {
     // reduce clear color for grid shadow display
-    const d = Math.floor(index / size.width)
-    if ((index + d) % 2 === 1) {
+    let isGray = true
+    isGray = (x + y) % 2 == 0
+    if (isGray) {
       return "rgba(0,0,0,.1)"
     }
     return "rgba(255,255,255,0.5)"
@@ -49,8 +65,8 @@ export default function BoardCanvas({
 
   const boardPixels = useMemo(() => {
     let newPixels: { x: number; y: number }[] = []
-    for (let y = 0; y < size.height; y++) {
-      for (let x = 0; x < size.width; x++) {
+    for (let y = 0; y < viewSize.height; y++) {
+      for (let x = 0; x < viewSize.width; x++) {
         newPixels.push({
           x,
           y,
@@ -58,7 +74,7 @@ export default function BoardCanvas({
       }
     }
     return newPixels
-  }, [size])
+  }, [viewSize])
 
   const layerVos = useMemo(() => {
     let vos: any = {}
@@ -70,21 +86,28 @@ export default function BoardCanvas({
 
   return (
     <Stage
-      className="select-none flex items-center justify-center min-w-[320px] min-h-[320px]"
-      width={canvasWidth}
-      height={canvasHeight}
+      className="board-canvas relative select-none flex items-center justify-center min-w-[320px] min-h-[320px]"
+      width={screenSize.width}
+      height={screenSize.height}
       onMouseMove={(e, size) => onMove?.(size)}
       onMouseMoveEnd={(e, size) => onMoveEnd?.(size)}
+      onMouseDraw={(e, touch: RectTouchEvent) => {
+        const pixel = {
+          x: Math.floor(touch.x / pixelSize),
+          y: Math.floor(touch.y / pixelSize),
+        }
+        onDraw?.(event, { ...touch, x: pixel.x, y: pixel.y })
+      }}
     >
       <Layer>
         {boardPixels.map((pixel, index) => (
           <Rect
             key={index}
-            x={pixel.x * pixelSize}
-            y={pixel.y * pixelSize}
-            width={pixelSize}
-            height={pixelSize}
-            fill={getGridColor("clear", index)}
+            x={pixel.x * viewPixelSize}
+            y={pixel.y * viewPixelSize}
+            width={viewPixelSize}
+            height={viewPixelSize}
+            fill={getGridColor("clear", index, pixel.x, pixel.y)}
             onMouseDown={(event, touch) =>
               onDraw?.(event, { ...touch, x: pixel.x, y: pixel.y })
             }
@@ -104,8 +127,10 @@ export default function BoardCanvas({
         {pixels.map((pixel, index) => {
           let curLayer = layer === pixel.layer
 
-          let x = (pixel.x + (curLayer ? offset.x : 0)) * pixelSize
-          let y = (pixel.y + (curLayer ? offset.y : 0)) * pixelSize
+          let x =
+            (pixel.x + (curLayer ? moveOffset.x : 0) + viewOffset.x) * pixelSize
+          let y =
+            (pixel.y + (curLayer ? moveOffset.y : 0) + viewOffset.y) * pixelSize
 
           // check curLayer ishide
           let layerItem = layerVos[pixel.layer]

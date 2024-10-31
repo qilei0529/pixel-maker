@@ -36,11 +36,12 @@ export const PixelCanvas = () => {
   const moveLayer = useDataStore((state) => state.moveLayer)
   const removeLayer = useDataStore((state) => state.removeLayer)
 
+  // MARK: init data
   useEffect(() => {
-    console.log("init Data")
     const data = getData()
     setPixels(data)
-  }, [pixelSize, size, getData])
+    setPixelSize(10)
+  }, [pixelSize, size, getData, setPixelSize])
 
   useEffect(() => {
     setPixels(
@@ -49,14 +50,14 @@ export const PixelCanvas = () => {
         .sort((a, b) => a.layer - b.layer)
     )
   }, [pixelMap])
-
   const clearAll = () => {
     clearData()
   }
 
   let [curColor, setColor] = useState("black")
   let [tool, setTool] = useState<string>("Pen")
-  let [offset, setOffset] = useState({ x: 0, y: 0 })
+  let [moveOffset, setMoveOffset] = useState({ x: 0, y: 0 })
+  let [viewOffset, setViewOffset] = useState({ x: 0, y: 0 })
 
   const handleDraw = (event: Event, touch: RectTouchEvent) => {
     if (tool === "Pen" || tool == "Eraser") {
@@ -77,16 +78,28 @@ export const PixelCanvas = () => {
     }
     let x = Math.floor(size.width / pixelSize)
     let y = Math.floor(size.height / pixelSize)
-    setOffset({ x, y })
+    setMoveOffset({ x, y })
   }
 
   const handleMoveEnd = (size: { width: number; height: number }) => {
     if (tool !== "Move") {
       return
     }
-    setPixels(movePixels({ x: offset.x, y: offset.y }, layer))
-    setOffset({ x: 0, y: 0 })
+    setPixels(movePixels({ x: moveOffset.x, y: moveOffset.y }, layer))
+    setMoveOffset({ x: 0, y: 0 })
   }
+
+  const [viewSize, setViewSize] = useState({ width: 0, height: 0 })
+
+  useEffect(() => {
+    const width = window.innerWidth
+    const height = window.innerHeight - 40
+    const grid = 20
+    setViewSize({
+      width: Math.floor(width / grid),
+      height: Math.floor(height / grid),
+    })
+  }, [])
 
   const updateSize = ({
     width,
@@ -100,17 +113,19 @@ export const PixelCanvas = () => {
 
     let d = Math.max(width ?? 0, height ?? 0)
 
-    if (d > 40) {
-      setPixelSize(6)
-    } else if (d > 24) {
-      setPixelSize(10)
-    } else if (d > 20) {
-      setPixelSize(14)
-    } else if (d > 15) {
-      setPixelSize(20)
-    } else {
-      setPixelSize(20)
-    }
+    setPixelSize(10)
+
+    // if (d > 40) {
+    //   setPixelSize(6)
+    // } else if (d > 24) {
+    //   setPixelSize(10)
+    // } else if (d > 20) {
+    //   setPixelSize(14)
+    // } else if (d > 15) {
+    //   setPixelSize(20)
+    // } else {
+    //   setPixelSize(20)
+    // }
 
     let limit = (v: number) => {
       return Math.max(0, Math.min(64, v))
@@ -137,8 +152,9 @@ export const PixelCanvas = () => {
 
   let content = (
     <BoardCanvas
-      size={size}
-      offset={offset}
+      size={viewSize}
+      moveOffset={moveOffset}
+      viewOffset={viewOffset}
       pixels={pixels}
       layer={layer}
       layers={layers}
@@ -203,8 +219,6 @@ export const PixelCanvas = () => {
       pixelSize={pixelSize}
       header={header}
       content={content}
-      sider={sider}
-      rightPanel={rightPanel}
     />
   )
 }
@@ -227,30 +241,6 @@ function ParseCanvas() {
 
               // 设置图片 URL 到 state 以便展示图片
               setImageSrc(imageUrl)
-
-              // const img = new Image()
-              // img.onload = () => {
-              //   // 图片加载后获取像素信息
-              //   const canvas = document.createElement("canvas")
-              //   const context = canvas.getContext("2d")
-
-              //   if (context) {
-              //     canvas.width = img.width
-              //     canvas.height = img.height
-              //     context.drawImage(img, 0, 0)
-
-              //     // 提取像素信息
-              //     const imageData = context.getImageData(
-              //       0,
-              //       0,
-              //       img.width,
-              //       img.height
-              //     )
-              //     console.log("have imageData.data")
-              //     console.log(imageData.data) // 包含 RGBA 像素信息的数组
-              //   }
-              // }
-              // img.src = imageUrl
             }
           }
         }

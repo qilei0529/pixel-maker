@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <main>
       <div className="absolute top-0 w-screen left-0 z-10 h-[40px] flex items-center p-2 space-x-2 bg-white">
-        <div className="flex-1 space-x-2 flex flex-row items-center justify-center">
+        <div className="flex-1 space-x-2 flex flex-row items-center">
           <span className="text-[18px] font-semibold">Pixel Cat</span>
           <span className="text-[12px] mt-1">{version}</span>
           <span className="w-4"></span>
