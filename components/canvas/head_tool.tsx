@@ -15,7 +15,7 @@ export default function HeadTool({
   color: string
   tool: string
   onToolChange: (tool: string) => void
-  onAction: (type: "Clear") => void
+  onAction: (type: "Clear" | "Color") => void
 }) {
   return (
     <>
@@ -24,7 +24,7 @@ export default function HeadTool({
           "w-[40px] h-[40px] flex items-center justify-center",
           tool === "Pen" ? "bg-red-200" : "bg-gray-200 opacity-50"
         )}
-        onClick={() => onToolChange("Pen")}
+        onClick={() => onAction("Color")}
       >
         <div
           className="w-7 h-7"

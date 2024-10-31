@@ -15,6 +15,7 @@ import Layout from "./layout"
 import LayerPanel from "./layer_panel"
 import { RectTouchEvent } from "./my_canvas"
 import { SizeSwitcher } from "./size_switcher"
+import { ColorPickerPanel } from "./color_picker"
 
 export const PixelCanvas = () => {
   const tool = useDataStore((state) => state.tool)
@@ -151,8 +152,10 @@ export const PixelCanvas = () => {
     })
   }
 
+  const [showColorPicker, setShowColorPicker] = useState(false)
+
   let header = (
-    <div className="flex flex-row space-x-2 p-3 pt-0 bg-white rounded-b-2xl">
+    <div className="relative flex flex-row  space-x-2 p-3 pt-0 bg-white rounded-b-2xl">
       <HeadTool
         color={curColor}
         tool={tool}
@@ -160,28 +163,55 @@ export const PixelCanvas = () => {
         onAction={(type) => {
           if (type === "Clear") {
             clearAll()
+          } else if (type === "Color") {
+            setShowColorPicker(!showColorPicker)
           }
         }}
       />
+      <div
+        className={cn(
+          "absolute top-[60px] left-[-30px]",
+          showColorPicker ? "block" : "hidden"
+        )}
+      >
+        <ColorPickerPanel
+          color={curColor}
+          onChange={(val) => {
+            console.log(val)
+            setColor(val.hex)
+          }}
+        />
+      </div>
     </div>
   )
 
   let content = (
-    <BoardCanvas
-      size={size}
-      moveOffset={moveOffset}
-      viewSize={viewSize}
-      viewPixelSize={viewPixelSize}
-      viewOffset={{ x: viewOffset.x + offset.x, y: viewOffset.y + offset.y }}
-      pixels={pixels}
-      layer={layer}
-      layers={layers}
-      pixelSize={pixelSize}
-      onDraw={handleDraw}
-      onDrawEnd={handleDrawEnd}
-      onMove={handleMove}
-      onMoveEnd={handleMoveEnd}
-    />
+    <>
+      <BoardCanvas
+        size={size}
+        moveOffset={moveOffset}
+        viewSize={viewSize}
+        viewPixelSize={viewPixelSize}
+        viewOffset={{ x: viewOffset.x + offset.x, y: viewOffset.y + offset.y }}
+        pixels={pixels}
+        layer={layer}
+        layers={layers}
+        pixelSize={pixelSize}
+        onDraw={handleDraw}
+        onDrawEnd={handleDrawEnd}
+        onMove={handleMove}
+        onMoveEnd={handleMoveEnd}
+      />
+      {/* mask */}
+      {showColorPicker ? (
+        <div
+          onClick={() => {
+            setShowColorPicker(false)
+          }}
+          className="absolute top-[40px] left-0 right-0 bottom-0 bg-black opacity-20 z-10"
+        ></div>
+      ) : null}
+    </>
   )
 
   let sider = (
