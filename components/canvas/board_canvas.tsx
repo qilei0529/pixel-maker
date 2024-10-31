@@ -56,8 +56,10 @@ export default function BoardCanvas({
   }, [layers])
 
   const board = useMemo(() => {
-    return <DashBoard size={size} viewSize={vSize} pixelSize={pixelSize} />
-  }, [size, vSize, pixelSize])
+    return (
+      <DashBoard size={size} viewSize={vSize} viewPixelSize={viewPixelSize} />
+    )
+  }, [size, vSize, viewPixelSize])
 
   const [midOffset, setMidOffset] = useState({ x: 0, y: 0 })
   useEffect(() => {
@@ -124,20 +126,22 @@ export default function BoardCanvas({
         </Layer>
       </Stage>
       {board}
-      <div
-        className="absolute z-40 pointer-events-none border-[2px] border-red-600"
-        style={{
-          width: size.width * pixelSize,
-          height: size.height * pixelSize,
-          top: 0,
-          left: 0,
-          transform: `translate(${midOffset.x * pixelSize}px, ${
-            midOffset.y * pixelSize
-          }px)`,
-        }}
-      >
-        <div className="absolute top-[-16px] left-[-2px] px-1 text-[12px] text-white bg-red-600 h-[16px] flex items-center rounded-t-sm">{`${size.width}x${size.height}`}</div>
-      </div>
+      {size.width > 0 ? (
+        <div
+          className="absolute z-40 pointer-events-none border-[2px] border-red-600"
+          style={{
+            width: size.width * pixelSize,
+            height: size.height * pixelSize,
+            top: 0,
+            left: 0,
+            transform: `translate(${midOffset.x * pixelSize}px, ${
+              midOffset.y * pixelSize
+            }px)`,
+          }}
+        >
+          <div className="absolute top-[-16px] left-[-2px] px-1 text-[12px] text-white bg-red-600 h-[16px] flex items-center rounded-t-sm">{`${size.width}x${size.height}`}</div>
+        </div>
+      ) : null}
     </div>
   )
 }
@@ -145,14 +149,12 @@ export default function BoardCanvas({
 function DashBoard({
   size,
   viewSize: vSize,
-  pixelSize,
+  viewPixelSize,
 }: {
   size: { width: number; height: number }
   viewSize: { width: number; height: number }
-  pixelSize: number
+  viewPixelSize: number
 }) {
-  const viewPixelSize = pixelSize
-
   const screenSize = useMemo(() => {
     return {
       width: vSize.width * viewPixelSize,

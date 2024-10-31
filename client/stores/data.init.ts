@@ -104,7 +104,7 @@ export const INIT_DATA = {
       "1_14_10": { color: "#FF55FF", x: 14, y: 10, layer: 1 },
       "1_14_9": { color: "#FF55FF", x: 14, y: 9, layer: 1 },
     },
-    pixelSize: 20,
+    pixelSize: 16,
     size: { width: 16, height: 16 },
   },
   version: 1.3,
