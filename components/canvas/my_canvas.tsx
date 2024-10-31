@@ -17,6 +17,7 @@ export const Stage = forwardRef(
       className,
       onMouseMove,
       onMouseMoveEnd,
+      onMouseDraw,
     }: {
       width: number
       height: number
@@ -29,6 +30,10 @@ export const Stage = forwardRef(
       onMouseMoveEnd?: (
         event: MouseEvent,
         size: { width: number; height: number }
+      ) => void
+      onMouseDraw?: (
+        event: MouseEvent,
+        touch: { x: number; y: number; type?: string; button?: number }
       ) => void
     },
     ref: any
@@ -228,6 +233,7 @@ export const Stage = forwardRef(
           type,
           button,
         })
+
         setLogger({
           event: "move",
           type,
@@ -242,12 +248,24 @@ export const Stage = forwardRef(
             height: y - size.height,
           })
         }
+
+        if (onMouseDraw) {
+          // let size = touchMoveRef.current ?? { width: 0, height: 0 }
+          onMouseDraw?.(event, { x, y, type, button })
+        }
       }
 
       const handleClick = (event: MouseEvent & TouchEvent) => {
         touchRef.current = false
         const { x, y } = getPosition(event)
         checkEvent(event, "onClick", { x, y })
+
+        const type = touchTypeRef.current.type
+        const button = touchTypeRef.current.button
+
+        if (onMouseDraw) {
+          onMouseDraw?.(event, { x, y, type, button })
+        }
       }
       const handleCancel = (event: MouseEvent & TouchEvent) => {
         touchRef.current = false
@@ -300,6 +318,7 @@ export const Stage = forwardRef(
     }, [children, onMouseMove, onMouseMoveEnd, ratio])
 
     const [logger, setLogger] = useState<any>({ event: "none" })
+
     return (
       <div className={className}>
         <canvas
@@ -311,7 +330,6 @@ export const Stage = forwardRef(
             height: height,
           }}
         />
-        <div className="absolute hidden">{JSON.stringify(logger)}</div>
       </div>
     )
   }

@@ -1,7 +1,10 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
-import { ILayerData, useDataStore } from "@/client/stores/data"
+import { useEffect, useState } from "react"
+import { useDataStore } from "@/client/stores/data"
+
+import { cn } from "@/lib/utils"
+import { Icons } from "@/shared/icons"
 
 import ColorPanel from "./color_panel"
 import MiniMapPanel from "./mini_map_panel"
@@ -12,8 +15,11 @@ import Layout from "./layout"
 import LayerPanel from "./layer_panel"
 import { RectTouchEvent } from "./my_canvas"
 import { SizeSwitcher } from "./size_switcher"
+import { ColorPickerPanel } from "./color_picker"
 
 export const PixelCanvas = () => {
+  const tool = useDataStore((state) => state.tool)
+  const setTool = useDataStore((state) => state.setTool)
   const size = useDataStore((state) => state.size)
   const pixelMap = useDataStore((state) => state.pixelMap)
   const pixelSize = useDataStore((state) => state.pixelSize)
@@ -36,11 +42,14 @@ export const PixelCanvas = () => {
   const moveLayer = useDataStore((state) => state.moveLayer)
   const removeLayer = useDataStore((state) => state.removeLayer)
 
+  const viewPixelSize = 16
+
+  // MARK: init data
   useEffect(() => {
-    console.log("init Data")
     const data = getData()
     setPixels(data)
-  }, [pixelSize, size, getData])
+    setPixelSize(16)
+  }, [pixelSize, size, getData, setPixelSize])
 
   useEffect(() => {
     setPixels(
@@ -48,18 +57,20 @@ export const PixelCanvas = () => {
         .map((key) => pixelMap[key])
         .sort((a, b) => a.layer - b.layer)
     )
+    if (window.innerWidth > 600) {
+      setShowSide(true)
+    }
   }, [pixelMap])
-
   const clearAll = () => {
     clearData()
   }
 
-  let [curColor, setColor] = useState("black")
-  let [tool, setTool] = useState<string>("Pen")
-  let [offset, setOffset] = useState({ x: 0, y: 0 })
+  const [curColor, setColor] = useState("black")
+  const [moveOffset, setMoveOffset] = useState({ x: 0, y: 0 })
+  const [viewOffset, setViewOffset] = useState({ x: 0, y: 0 })
 
   const handleDraw = (event: Event, touch: RectTouchEvent) => {
-    if (tool === "Pen" || tool == "Eraser") {
+    if (isDrawing(tool)) {
       let color = tool == "Pen" ? curColor : "clear"
       if (touch.type == "pen" && tool === "Pen") {
         // check if button is 5 , 5 is Eraser
@@ -71,22 +82,54 @@ export const PixelCanvas = () => {
   }
   const handleDrawEnd = (event: Event, touch: RectTouchEvent) => {}
 
+  const isDrawing = (tool: string | "Pen" | "Eraser" | "Move" | "Hand") => {
+    return tool === "Pen" || tool == "Eraser"
+  }
+
   const handleMove = (size: { width: number; height: number }) => {
-    if (tool !== "Move") {
+    if (isDrawing(tool)) {
       return
     }
     let x = Math.floor(size.width / pixelSize)
     let y = Math.floor(size.height / pixelSize)
-    setOffset({ x, y })
+    if (tool == "Move") {
+      setMoveOffset({ x, y })
+    } else {
+      setViewOffset({ x: x, y: y })
+    }
   }
 
+  const [offset, setOffset] = useState({ x: 0, y: 0 })
+
   const handleMoveEnd = (size: { width: number; height: number }) => {
-    if (tool !== "Move") {
+    if (isDrawing(tool)) {
       return
     }
-    setPixels(movePixels({ x: offset.x, y: offset.y }, layer))
-    setOffset({ x: 0, y: 0 })
+    if (tool == "Move") {
+      setPixels(movePixels({ x: moveOffset.x, y: moveOffset.y }, layer))
+      setMoveOffset({ x: 0, y: 0 })
+    } else {
+      setOffset({ x: offset.x + viewOffset.x, y: viewOffset.y + offset.y })
+      setViewOffset({ x: 0, y: 0 })
+    }
   }
+
+  const [viewSize, setViewSize] = useState({ width: 0, height: 0 })
+
+  const [showSide, setShowSide] = useState(false)
+
+  useEffect(() => {
+    const width = window.innerWidth
+    const height = window.innerHeight - 40
+    const grid = viewPixelSize
+
+    const w = Math.floor(width / grid)
+    const h = Math.floor(height / grid)
+    setViewSize({
+      width: w,
+      height: h,
+    })
+  }, [])
 
   const updateSize = ({
     width,
@@ -97,20 +140,7 @@ export const PixelCanvas = () => {
   }) => {
     // check
     const size = useDataStore.getState().size
-
-    let d = Math.max(width ?? 0, height ?? 0)
-
-    if (d > 40) {
-      setPixelSize(6)
-    } else if (d > 24) {
-      setPixelSize(10)
-    } else if (d > 20) {
-      setPixelSize(14)
-    } else if (d > 15) {
-      setPixelSize(20)
-    } else {
-      setPixelSize(20)
-    }
+    setPixelSize(10)
 
     let limit = (v: number) => {
       return Math.max(0, Math.min(64, v))
@@ -118,84 +148,153 @@ export const PixelCanvas = () => {
 
     setSize({
       width: width ? limit(width) : size.width,
-      height: width ? limit(width) : size.width,
+      height: height ? limit(height) : size.height,
     })
   }
 
-  let header = (
-    <HeadTool
-      color={curColor}
-      tool={tool}
-      onToolChange={setTool}
-      onAction={(type) => {
-        if (type === "Clear") {
-          clearAll()
-        }
-      }}
-    />
-  )
+  const [showColorPicker, setShowColorPicker] = useState(false)
 
-  let content = (
-    <BoardCanvas
-      size={size}
-      offset={offset}
-      pixels={pixels}
-      layer={layer}
-      layers={layers}
-      pixelSize={pixelSize}
-      onDraw={handleDraw}
-      onDrawEnd={handleDrawEnd}
-      onMove={handleMove}
-      onMoveEnd={handleMoveEnd}
-    />
-  )
-  let sider = (
-    <>
-      <div className="">
-        <ColorPanel color={curColor} onColorChange={setColor} />
-      </div>
-      <div className="flex-1 h-4"></div>
-      <div className="w-[132px] sm:w-auto">
-        <LayerPanel
-          layer={layer}
-          layers={layers}
-          onCreateLayer={() => {
-            addLayer()
-          }}
-          onSelectLayer={(layer) => {
-            setLayer(layer)
-          }}
-          onRemoveLayer={(layer) => {
-            //
-            removeLayer(layer)
-          }}
-          onToggleHide={(layer) => {
-            //
-            toggleHideLayer(layer)
-          }}
-          onToggleLevel={(layer, index) => {
-            //
-            moveLayer(layer, index)
+  let header = (
+    <div className="relative flex flex-row space-x-2 p-3 pt-0 bg-white rounded-b-2xl shadow-black-200 shadow-lg">
+      <HeadTool
+        color={curColor}
+        tool={tool}
+        onToolChange={setTool}
+        onAction={(type) => {
+          if (type === "Clear") {
+            clearAll()
+          } else if (type === "Color") {
+            setShowColorPicker(!showColorPicker)
+            if (tool != "Pen") {
+              setTool("Pen")
+            }
+          }
+        }}
+      />
+      <div
+        className={cn(
+          "absolute top-[60px] left-[-30px]",
+          showColorPicker ? "block" : "hidden"
+        )}
+      >
+        <ColorPickerPanel
+          color={curColor}
+          onChange={(val) => {
+            console.log(val)
+            setColor(val.hex)
           }}
         />
       </div>
-    </>
+    </div>
   )
-  let rightPanel = (
+
+  let content = (
     <>
-      <div className="w-[120px] sm:w-auto flex flex-row justify-center items-center">
-        <SizeSwitcher size={size} onChange={updateSize} />
+      <BoardCanvas
+        size={size}
+        moveOffset={moveOffset}
+        viewSize={viewSize}
+        viewPixelSize={viewPixelSize}
+        viewOffset={{ x: viewOffset.x + offset.x, y: viewOffset.y + offset.y }}
+        pixels={pixels}
+        layer={layer}
+        layers={layers}
+        pixelSize={pixelSize}
+        onDraw={handleDraw}
+        onDrawEnd={handleDrawEnd}
+        onMove={handleMove}
+        onMoveEnd={handleMoveEnd}
+      />
+      {/* mask */}
+      {showColorPicker ? (
+        <div
+          onClick={() => {
+            setShowColorPicker(false)
+          }}
+          className="absolute top-[40px] left-0 right-0 bottom-0 bg-black opacity-20 z-10"
+        ></div>
+      ) : null}
+    </>
+  )
+
+  let sider = (
+    <>
+      <div
+        className={cn(
+          "bg-gray-200 rounded-r-2xl h-[40px] flex flex-row items-center justify-center  shadow-black-200 shadow-lg",
+          showSide ? "w-[60px] pl-[20px] text-black" : "w-[40px] text-black"
+        )}
+        onClick={() => {
+          setShowSide(!showSide)
+        }}
+      >
+        {showSide ? (
+          <Icons.sideOpen className="w-5 h-5" />
+        ) : (
+          <Icons.sideFold className="w-5 h-5" />
+        )}
       </div>
-      <div className="flex-1"></div>
-      <div>
-        <MiniMapPanel layers={layers} size={size} pixels={pixels} />
-      </div>
-      <div className="flex-1"></div>
-      <div className="w-[120px] sm:w-auto flex flex-row justify-center items-center">
-        <SavePanel layers={layers} size={size} pixels={pixels} />
+      <div
+        className={cn(
+          "flex flex-col flex-1 p-3 bg-white rounded-r-2xl shadow-black-200 shadow-lg",
+          showSide ? "flex" : "hidden"
+        )}
+      >
+        <div className="">
+          <ColorPanel color={curColor} onColorChange={setColor} />
+        </div>
+        <div className="flex-1 h-4"></div>
+        <div className="">
+          <LayerPanel
+            layer={layer}
+            layers={layers}
+            onCreateLayer={() => {
+              addLayer()
+            }}
+            onSelectLayer={(layer) => {
+              setLayer(layer)
+            }}
+            onRemoveLayer={(layer) => {
+              //
+              removeLayer(layer)
+            }}
+            onToggleHide={(layer) => {
+              //
+              toggleHideLayer(layer)
+            }}
+            onToggleLevel={(layer, index) => {
+              //
+              moveLayer(layer, index)
+            }}
+          />
+        </div>
+        <div className="h-[20px]"></div>
+        <div className="bg-gray-200">
+          <div className="flex flex-row justify-center items-center p-2">
+            <SizeSwitcher size={size} onChange={updateSize} />
+          </div>
+          <div className=" p-2">
+            <MiniMapPanel
+              layers={layers}
+              size={size}
+              pixels={pixels}
+              offset={offset}
+            />
+          </div>
+          <div className="flex flex-row justify-center items-center p-2">
+            <SavePanel
+              layers={layers}
+              size={size}
+              pixels={pixels}
+              offset={offset}
+            />
+          </div>
+        </div>
       </div>
     </>
   )
+
+  let rightPanel = <></>
 
   return (
     <Layout
@@ -227,30 +326,6 @@ function ParseCanvas() {
 
               // 设置图片 URL 到 state 以便展示图片
               setImageSrc(imageUrl)
-
-              // const img = new Image()
-              // img.onload = () => {
-              //   // 图片加载后获取像素信息
-              //   const canvas = document.createElement("canvas")
-              //   const context = canvas.getContext("2d")
-
-              //   if (context) {
-              //     canvas.width = img.width
-              //     canvas.height = img.height
-              //     context.drawImage(img, 0, 0)
-
-              //     // 提取像素信息
-              //     const imageData = context.getImageData(
-              //       0,
-              //       0,
-              //       img.width,
-              //       img.height
-              //     )
-              //     console.log("have imageData.data")
-              //     console.log(imageData.data) // 包含 RGBA 像素信息的数组
-              //   }
-              // }
-              // img.src = imageUrl
             }
           }
         }

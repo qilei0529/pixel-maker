@@ -1,5 +1,10 @@
 # Just a Pixel Tool
 
+## 2.0
+
+- full screen size painting
+- color picker
+
 ## 1.1
 
 - storage for pixel
