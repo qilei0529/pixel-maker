@@ -8,8 +8,6 @@ export const SizeSwitcher = ({
   size: { width: number; height: number }
   onChange: (size: { width?: number; height?: number }) => void
 }) => {
-  const target = useRef<any>()
-
   return (
     <div className="relative" key={`${size.width}_${size.height}`}>
       <div className="flex flex-row space-x-1">

@@ -1,7 +1,10 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
-import { ILayerData, useDataStore } from "@/client/stores/data"
+import { useEffect, useState } from "react"
+import { useDataStore } from "@/client/stores/data"
+
+import { cn } from "@/lib/utils"
+import { Icons } from "@/shared/icons"
 
 import ColorPanel from "./color_panel"
 import MiniMapPanel from "./mini_map_panel"
@@ -38,13 +41,13 @@ export const PixelCanvas = () => {
   const moveLayer = useDataStore((state) => state.moveLayer)
   const removeLayer = useDataStore((state) => state.removeLayer)
 
-  const viewPixelSize = 10
+  const viewPixelSize = 16
 
   // MARK: init data
   useEffect(() => {
     const data = getData()
     setPixels(data)
-    setPixelSize(10)
+    setPixelSize(16)
   }, [pixelSize, size, getData, setPixelSize])
 
   useEffect(() => {
@@ -53,15 +56,15 @@ export const PixelCanvas = () => {
         .map((key) => pixelMap[key])
         .sort((a, b) => a.layer - b.layer)
     )
+    if (window.innerWidth > 600) {
+      setShowSide(true)
+    }
   }, [pixelMap])
   const clearAll = () => {
     clearData()
   }
 
   const [curColor, setColor] = useState("black")
-  // const [tool, setTool] = useState<any | "Pen" | "Eraser" | "Move" | "Hand">(
-  //   "Pen"
-  // )
   const [moveOffset, setMoveOffset] = useState({ x: 0, y: 0 })
   const [viewOffset, setViewOffset] = useState({ x: 0, y: 0 })
 
@@ -112,6 +115,8 @@ export const PixelCanvas = () => {
 
   const [viewSize, setViewSize] = useState({ width: 0, height: 0 })
 
+  const [showSide, setShowSide] = useState(false)
+
   useEffect(() => {
     const width = window.innerWidth
     const height = window.innerHeight - 40
@@ -125,16 +130,6 @@ export const PixelCanvas = () => {
     })
   }, [])
 
-  const [midOffset, setMidOffset] = useState({ x: 0, y: 0 })
-
-  useEffect(() => {
-    let ratio = pixelSize / viewPixelSize
-    setMidOffset({
-      x: Math.floor((viewSize.width / ratio - size.width) / 2),
-      y: Math.floor((viewSize.height / ratio - size.height) / 2),
-    })
-  }, [size, viewSize, pixelSize])
-
   const updateSize = ({
     width,
     height,
@@ -144,9 +139,6 @@ export const PixelCanvas = () => {
   }) => {
     // check
     const size = useDataStore.getState().size
-
-    let d = Math.max(width ?? 0, height ?? 0)
-
     setPixelSize(10)
 
     let limit = (v: number) => {
@@ -171,9 +163,6 @@ export const PixelCanvas = () => {
           }
         }}
       />
-      <div className="hidden w-[60px] text-[10px] flex flex-row items-end">
-        {offset.x + viewOffset.x}, {offset.y + viewOffset.y}
-      </div>
     </div>
   )
 
@@ -196,58 +185,79 @@ export const PixelCanvas = () => {
   )
 
   let sider = (
-    <div className="flex flex-col flex-1 p-3 bg-white rounded-r-2xl">
-      <div className="">
-        <ColorPanel color={curColor} onColorChange={setColor} />
+    <>
+      <div
+        className={cn(
+          "bg-white rounded-r-2xl h-[40px] w-[40px] flex items-center justify-center"
+        )}
+        onClick={() => {
+          setShowSide(!showSide)
+        }}
+      >
+        {showSide ? (
+          <Icons.sideOpen className="w-5 h-5" />
+        ) : (
+          <Icons.sideFold className="w-5 h-5" />
+        )}
       </div>
-      <div className="flex-1 h-4"></div>
-      <div className="">
-        <LayerPanel
-          layer={layer}
-          layers={layers}
-          onCreateLayer={() => {
-            addLayer()
-          }}
-          onSelectLayer={(layer) => {
-            setLayer(layer)
-          }}
-          onRemoveLayer={(layer) => {
-            //
-            removeLayer(layer)
-          }}
-          onToggleHide={(layer) => {
-            //
-            toggleHideLayer(layer)
-          }}
-          onToggleLevel={(layer, index) => {
-            //
-            moveLayer(layer, index)
-          }}
-        />
-      </div>
-      <div className="h-[20px]"></div>
-      <div className="bg-gray-200">
-        <div className="flex flex-row justify-center items-center p-2">
-          <SizeSwitcher size={size} onChange={updateSize} />
+      <div
+        className={cn(
+          "flex flex-col flex-1 p-3 bg-white rounded-r-2xl",
+          showSide ? "flex" : "hidden"
+        )}
+      >
+        <div className="">
+          <ColorPanel color={curColor} onColorChange={setColor} />
         </div>
-        <div className=" p-2">
-          <MiniMapPanel
+        <div className="flex-1 h-4"></div>
+        <div className="">
+          <LayerPanel
+            layer={layer}
             layers={layers}
-            size={size}
-            pixels={pixels}
-            offset={offset}
+            onCreateLayer={() => {
+              addLayer()
+            }}
+            onSelectLayer={(layer) => {
+              setLayer(layer)
+            }}
+            onRemoveLayer={(layer) => {
+              //
+              removeLayer(layer)
+            }}
+            onToggleHide={(layer) => {
+              //
+              toggleHideLayer(layer)
+            }}
+            onToggleLevel={(layer, index) => {
+              //
+              moveLayer(layer, index)
+            }}
           />
         </div>
-        <div className="flex flex-row justify-center items-center p-2">
-          <SavePanel
-            layers={layers}
-            size={size}
-            pixels={pixels}
-            offset={offset}
-          />
+        <div className="h-[20px]"></div>
+        <div className="bg-gray-200">
+          <div className="flex flex-row justify-center items-center p-2">
+            <SizeSwitcher size={size} onChange={updateSize} />
+          </div>
+          <div className=" p-2">
+            <MiniMapPanel
+              layers={layers}
+              size={size}
+              pixels={pixels}
+              offset={offset}
+            />
+          </div>
+          <div className="flex flex-row justify-center items-center p-2">
+            <SavePanel
+              layers={layers}
+              size={size}
+              pixels={pixels}
+              offset={offset}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 
   let rightPanel = <></>

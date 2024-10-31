@@ -65,7 +65,7 @@ export const useDataStore = create<IDataState & IDataAction>()(
         ],
         layer: 1,
         pixelMap: {},
-        pixelSize: 20,
+        pixelSize: 16,
         size: { width: 0, height: 0 },
         offset: { x: 0, y: 0 },
 
