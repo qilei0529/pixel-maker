@@ -155,7 +155,7 @@ export const PixelCanvas = () => {
   const [showColorPicker, setShowColorPicker] = useState(false)
 
   let header = (
-    <div className="relative flex flex-row  space-x-2 p-3 pt-0 bg-white rounded-b-2xl">
+    <div className="relative flex flex-row space-x-2 p-3 pt-0 bg-white rounded-b-2xl shadow-black-200 shadow-lg">
       <HeadTool
         color={curColor}
         tool={tool}
@@ -218,7 +218,8 @@ export const PixelCanvas = () => {
     <>
       <div
         className={cn(
-          "bg-white rounded-r-2xl h-[40px] w-[40px] flex items-center justify-center"
+          "bg-gray-200 rounded-r-2xl h-[40px] flex flex-row items-center justify-center  shadow-black-200 shadow-lg",
+          showSide ? "w-[60px] pl-[20px] text-black" : "w-[40px] text-black"
         )}
         onClick={() => {
           setShowSide(!showSide)
@@ -232,7 +233,7 @@ export const PixelCanvas = () => {
       </div>
       <div
         className={cn(
-          "flex flex-col flex-1 p-3 bg-white rounded-r-2xl",
+          "flex flex-col flex-1 p-3 bg-white rounded-r-2xl shadow-black-200 shadow-lg",
           showSide ? "flex" : "hidden"
         )}
       >

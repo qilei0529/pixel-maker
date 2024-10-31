@@ -128,7 +128,7 @@ export default function BoardCanvas({
       {board}
       {size.width > 0 ? (
         <div
-          className="absolute z-40 pointer-events-none border-[2px] border-red-600"
+          className="absolute z-10 pointer-events-none border-[2px] border-red-600"
           style={{
             width: size.width * pixelSize,
             height: size.height * pixelSize,
