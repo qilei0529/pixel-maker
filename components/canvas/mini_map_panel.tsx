@@ -8,6 +8,7 @@ export default function MiniMapPanel({
   layers,
 }: {
   size: { width: number; height: number }
+  offset: { x: number; y: number }
   pixels: any[]
   layers: any[]
 }) {

@@ -4,10 +4,12 @@ import { Layer, Rect, Stage } from "./my_canvas"
 
 export default function SavePanel({
   size,
+  offset,
   pixels,
   layers,
 }: {
   size: { width: number; height: number }
+  offset: { x: number; y: number }
   pixels: any[]
   layers: any[]
 }) {
@@ -40,7 +42,7 @@ export default function SavePanel({
   }, [layers])
 
   return (
-    <div className="relative flex flex-row sm:flex-col space-x-1">
+    <div className="relative flex flex-row space-x-1">
       <select
         className="p-1 px-2 rounded-lg text-[14px]"
         value={exportRatio}
@@ -72,8 +74,8 @@ export default function SavePanel({
               return (
                 <Rect
                   key={index}
-                  x={pixel.x * exportRatio}
-                  y={pixel.y * exportRatio}
+                  x={(pixel.x + offset.x) * exportRatio}
+                  y={(pixel.y + offset.y) * exportRatio}
                   width={exportRatio}
                   height={exportRatio}
                   fill={

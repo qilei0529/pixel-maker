@@ -11,7 +11,7 @@ export const SizeSwitcher = ({
   const target = useRef<any>()
 
   return (
-    <div className="relative">
+    <div className="relative" key={`${size.width}_${size.height}`}>
       <div className="flex flex-row space-x-1">
         <MiniInput
           className="w-8 text-center rounded-md"

@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware"
 import { INIT_DATA } from "./data.init"
 
 type IDataState = {
+  tool: string | "Pen" | "Eraser" | "Move" | "Hand"
   pixels: IPixelData[]
   pixelMap: { [key: string]: IPixelData }
   layers: ILayerData[]
@@ -39,6 +40,7 @@ type IDataAction = {
   saveData: (data: { [key: string]: IPixelData }) => void
   setSize: (size: { width: number; height: number }) => void
   setPixelSize: (size: number) => void
+  setTool: (tool: string) => void
 
   addLayer: () => void
   removeLayer: (layer: number) => void
@@ -53,6 +55,7 @@ export const useDataStore = create<IDataState & IDataAction>()(
   persist(
     (set, get) => {
       return {
+        tool: "Pen",
         pixels: [],
         layers: [
           {
@@ -64,15 +67,9 @@ export const useDataStore = create<IDataState & IDataAction>()(
         pixelMap: {},
         pixelSize: 20,
         size: { width: 0, height: 0 },
-
         offset: { x: 0, y: 0 },
 
         initData() {
-          // let { size, pixels } = get()
-          // if (size.width == 0) {
-          //   size.width = 16
-          //   size.height = 16
-          // }
           set({
             // size: size,
             ...INIT_DATA.state,
@@ -141,6 +138,12 @@ export const useDataStore = create<IDataState & IDataAction>()(
         setPixelSize(size) {
           set({
             pixelSize: size,
+          })
+        },
+
+        setTool(tool: string) {
+          set({
+            tool: tool,
           })
         },
 

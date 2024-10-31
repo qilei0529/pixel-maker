@@ -1,5 +1,6 @@
 export const INIT_DATA = {
   state: {
+    tool: "Pen",
     pixels: [],
     layers: [{ name: "layer-1", value: 1 }],
     layer: 1,

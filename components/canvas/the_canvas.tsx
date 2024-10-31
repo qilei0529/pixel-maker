@@ -14,8 +14,8 @@ import { RectTouchEvent } from "./my_canvas"
 import { SizeSwitcher } from "./size_switcher"
 
 export const PixelCanvas = () => {
-  const offset = useDataStore((state) => state.offset)
-  const setOffset = useDataStore((state) => state.setOffset)
+  const tool = useDataStore((state) => state.tool)
+  const setTool = useDataStore((state) => state.setTool)
   const size = useDataStore((state) => state.size)
   const pixelMap = useDataStore((state) => state.pixelMap)
   const pixelSize = useDataStore((state) => state.pixelSize)
@@ -38,6 +38,8 @@ export const PixelCanvas = () => {
   const moveLayer = useDataStore((state) => state.moveLayer)
   const removeLayer = useDataStore((state) => state.removeLayer)
 
+  const viewPixelSize = 10
+
   // MARK: init data
   useEffect(() => {
     const data = getData()
@@ -57,9 +59,9 @@ export const PixelCanvas = () => {
   }
 
   const [curColor, setColor] = useState("black")
-  const [tool, setTool] = useState<any | "Pen" | "Eraser" | "Move" | "Hand">(
-    "Pen"
-  )
+  // const [tool, setTool] = useState<any | "Pen" | "Eraser" | "Move" | "Hand">(
+  //   "Pen"
+  // )
   const [moveOffset, setMoveOffset] = useState({ x: 0, y: 0 })
   const [viewOffset, setViewOffset] = useState({ x: 0, y: 0 })
 
@@ -93,6 +95,8 @@ export const PixelCanvas = () => {
     }
   }
 
+  const [offset, setOffset] = useState({ x: 0, y: 0 })
+
   const handleMoveEnd = (size: { width: number; height: number }) => {
     if (isDrawing(tool)) {
       return
@@ -111,12 +115,23 @@ export const PixelCanvas = () => {
   useEffect(() => {
     const width = window.innerWidth
     const height = window.innerHeight - 40
-    const grid = 20
+    const grid = viewPixelSize
+
+    const w = Math.floor(width / grid)
+    const h = Math.floor(height / grid)
     setViewSize({
-      width: Math.floor(width / grid),
-      height: Math.floor(height / grid),
+      width: w,
+      height: h,
     })
   }, [])
+
+  useEffect(() => {
+    let ratio = pixelSize / viewPixelSize
+    setOffset({
+      x: Math.floor((viewSize.width / ratio - size.width) / 2),
+      y: Math.floor((viewSize.height / ratio - size.height) / 2),
+    })
+  }, [size, viewSize, pixelSize])
 
   const updateSize = ({
     width,
@@ -132,18 +147,6 @@ export const PixelCanvas = () => {
 
     setPixelSize(10)
 
-    // if (d > 40) {
-    //   setPixelSize(6)
-    // } else if (d > 24) {
-    //   setPixelSize(10)
-    // } else if (d > 20) {
-    //   setPixelSize(14)
-    // } else if (d > 15) {
-    //   setPixelSize(20)
-    // } else {
-    //   setPixelSize(20)
-    // }
-
     let limit = (v: number) => {
       return Math.max(0, Math.min(64, v))
     }
@@ -155,22 +158,29 @@ export const PixelCanvas = () => {
   }
 
   let header = (
-    <HeadTool
-      color={curColor}
-      tool={tool}
-      onToolChange={setTool}
-      onAction={(type) => {
-        if (type === "Clear") {
-          clearAll()
-        }
-      }}
-    />
+    <div className="flex flex-row space-x-2 p-3 pt-0 bg-white rounded-b-2xl">
+      <HeadTool
+        color={curColor}
+        tool={tool}
+        onToolChange={setTool}
+        onAction={(type) => {
+          if (type === "Clear") {
+            clearAll()
+          }
+        }}
+      />
+      <div className="hidden w-[60px] text-[10px] flex flex-row items-end">
+        {offset.x + viewOffset.x}, {offset.y + viewOffset.y}
+      </div>
+    </div>
   )
 
   let content = (
     <BoardCanvas
-      size={viewSize}
+      size={size}
       moveOffset={moveOffset}
+      viewSize={viewSize}
+      viewPixelSize={viewPixelSize}
       viewOffset={{ x: viewOffset.x + offset.x, y: viewOffset.y + offset.y }}
       pixels={pixels}
       layer={layer}
@@ -182,8 +192,9 @@ export const PixelCanvas = () => {
       onMoveEnd={handleMoveEnd}
     />
   )
+
   let sider = (
-    <>
+    <div className="flex flex-row sm:flex-col flex-1 p-3 bg-white rounded-r-2xl">
       <div className="">
         <ColorPanel color={curColor} onColorChange={setColor} />
       </div>
@@ -212,23 +223,32 @@ export const PixelCanvas = () => {
           }}
         />
       </div>
-    </>
+      <div className="h-[20px]"></div>
+      <div className="bg-gray-200">
+        <div className="w-[120px] sm:w-auto flex flex-row justify-center items-center p-2">
+          <SizeSwitcher size={size} onChange={updateSize} />
+        </div>
+        <div className=" p-2">
+          <MiniMapPanel
+            layers={layers}
+            size={size}
+            pixels={pixels}
+            offset={offset}
+          />
+        </div>
+        <div className="w-[120px] sm:w-auto flex flex-row justify-center items-center p-2">
+          <SavePanel
+            offset={{ x: 0, y: 0 }}
+            layers={layers}
+            size={size}
+            pixels={pixels}
+          />
+        </div>
+      </div>
+    </div>
   )
-  let rightPanel = (
-    <>
-      <div className="w-[120px] sm:w-auto flex flex-row justify-center items-center">
-        <SizeSwitcher size={size} onChange={updateSize} />
-      </div>
-      <div className="flex-1"></div>
-      <div>
-        <MiniMapPanel layers={layers} size={size} pixels={pixels} />
-      </div>
-      <div className="flex-1"></div>
-      <div className="w-[120px] sm:w-auto flex flex-row justify-center items-center">
-        <SavePanel layers={layers} size={size} pixels={pixels} />
-      </div>
-    </>
-  )
+
+  let rightPanel = <></>
 
   return (
     <Layout
