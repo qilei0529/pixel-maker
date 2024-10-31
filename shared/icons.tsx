@@ -8,6 +8,7 @@ import {
   SquarePlus,
   ChevronUp,
   Eye,
+  Hand,
 } from "lucide-react"
 export const Icons = {
   pencel: Pencil,
@@ -22,6 +23,7 @@ export const Icons = {
   eye: Eye,
 
   create: SquarePlus,
+  hand: Hand,
 
   twitter: ({ ...props }: LucideProps) => (
     <svg

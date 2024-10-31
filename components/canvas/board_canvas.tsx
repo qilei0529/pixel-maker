@@ -93,8 +93,8 @@ export default function BoardCanvas({
       onMouseMoveEnd={(e, size) => onMoveEnd?.(size)}
       onMouseDraw={(e, touch: RectTouchEvent) => {
         const pixel = {
-          x: Math.floor(touch.x / pixelSize),
-          y: Math.floor(touch.y / pixelSize),
+          x: Math.floor(touch.x / pixelSize - viewOffset.x),
+          y: Math.floor(touch.y / pixelSize - viewOffset.y),
         }
         onDraw?.(event, { ...touch, x: pixel.x, y: pixel.y })
       }}
@@ -108,18 +108,18 @@ export default function BoardCanvas({
             width={viewPixelSize}
             height={viewPixelSize}
             fill={getGridColor("clear", index, pixel.x, pixel.y)}
-            onMouseDown={(event, touch) =>
-              onDraw?.(event, { ...touch, x: pixel.x, y: pixel.y })
-            }
-            onMouseUp={(event, touch) =>
-              onDrawEnd?.(event, { ...touch, x: pixel.x, y: pixel.y })
-            }
-            onMouseMove={(event, touch) =>
-              onDraw?.(event, { ...touch, x: pixel.x, y: pixel.y })
-            }
-            onClick={(event, touch) =>
-              onDraw?.(event, { ...touch, x: pixel.x, y: pixel.y })
-            }
+            // onMouseDown={(event, touch) =>
+            //   onDraw?.(event, { ...touch, x: pixel.x, y: pixel.y })
+            // }
+            // onMouseUp={(event, touch) =>
+            //   onDrawEnd?.(event, { ...touch, x: pixel.x, y: pixel.y })
+            // }
+            // onMouseMove={(event, touch) =>
+            //   onDraw?.(event, { ...touch, x: pixel.x, y: pixel.y })
+            // }
+            // onClick={(event, touch) =>
+            //   onDraw?.(event, { ...touch, x: pixel.x, y: pixel.y })
+            // }
           />
         ))}
       </Layer>

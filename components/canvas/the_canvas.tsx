@@ -14,6 +14,8 @@ import { RectTouchEvent } from "./my_canvas"
 import { SizeSwitcher } from "./size_switcher"
 
 export const PixelCanvas = () => {
+  const offset = useDataStore((state) => state.offset)
+  const setOffset = useDataStore((state) => state.setOffset)
   const size = useDataStore((state) => state.size)
   const pixelMap = useDataStore((state) => state.pixelMap)
   const pixelSize = useDataStore((state) => state.pixelSize)
@@ -54,13 +56,15 @@ export const PixelCanvas = () => {
     clearData()
   }
 
-  let [curColor, setColor] = useState("black")
-  let [tool, setTool] = useState<string>("Pen")
-  let [moveOffset, setMoveOffset] = useState({ x: 0, y: 0 })
-  let [viewOffset, setViewOffset] = useState({ x: 0, y: 0 })
+  const [curColor, setColor] = useState("black")
+  const [tool, setTool] = useState<any | "Pen" | "Eraser" | "Move" | "Hand">(
+    "Pen"
+  )
+  const [moveOffset, setMoveOffset] = useState({ x: 0, y: 0 })
+  const [viewOffset, setViewOffset] = useState({ x: 0, y: 0 })
 
   const handleDraw = (event: Event, touch: RectTouchEvent) => {
-    if (tool === "Pen" || tool == "Eraser") {
+    if (isDrawing(tool)) {
       let color = tool == "Pen" ? curColor : "clear"
       if (touch.type == "pen" && tool === "Pen") {
         // check if button is 5 , 5 is Eraser
@@ -72,21 +76,34 @@ export const PixelCanvas = () => {
   }
   const handleDrawEnd = (event: Event, touch: RectTouchEvent) => {}
 
+  const isDrawing = (tool: string | "Pen" | "Eraser" | "Move" | "Hand") => {
+    return tool === "Pen" || tool == "Eraser"
+  }
+
   const handleMove = (size: { width: number; height: number }) => {
-    if (tool !== "Move") {
+    if (isDrawing(tool)) {
       return
     }
     let x = Math.floor(size.width / pixelSize)
     let y = Math.floor(size.height / pixelSize)
-    setMoveOffset({ x, y })
+    if (tool == "Move") {
+      setMoveOffset({ x, y })
+    } else {
+      setViewOffset({ x: x, y: y })
+    }
   }
 
   const handleMoveEnd = (size: { width: number; height: number }) => {
-    if (tool !== "Move") {
+    if (isDrawing(tool)) {
       return
     }
-    setPixels(movePixels({ x: moveOffset.x, y: moveOffset.y }, layer))
-    setMoveOffset({ x: 0, y: 0 })
+    if (tool == "Move") {
+      setPixels(movePixels({ x: moveOffset.x, y: moveOffset.y }, layer))
+      setMoveOffset({ x: 0, y: 0 })
+    } else {
+      setOffset({ x: offset.x + viewOffset.x, y: viewOffset.y + offset.y })
+      setViewOffset({ x: 0, y: 0 })
+    }
   }
 
   const [viewSize, setViewSize] = useState({ width: 0, height: 0 })
@@ -154,7 +171,7 @@ export const PixelCanvas = () => {
     <BoardCanvas
       size={viewSize}
       moveOffset={moveOffset}
-      viewOffset={viewOffset}
+      viewOffset={{ x: viewOffset.x + offset.x, y: viewOffset.y + offset.y }}
       pixels={pixels}
       layer={layer}
       layers={layers}
@@ -219,6 +236,8 @@ export const PixelCanvas = () => {
       pixelSize={pixelSize}
       header={header}
       content={content}
+      sider={sider}
+      rightPanel={rightPanel}
     />
   )
 }

@@ -151,23 +151,23 @@ export const Stage = forwardRef(
         pos: RectTouchEvent
       ) => {
         let events = eventRef.current[type] ?? []
-        // events.forEach((item: { rect: any; handle: any }, index: number) => {
-        //   const { rect, handle } = item
-        //   if (rect && handle) {
-        //     if (
-        //       isInsideRect(
-        //         pos.x,
-        //         pos.y,
-        //         rect.x,
-        //         rect.y,
-        //         rect.width,
-        //         rect.height
-        //       )
-        //     ) {
-        //       handle(event, pos)
-        //     }
-        //   }
-        // })
+        events.forEach((item: { rect: any; handle: any }, index: number) => {
+          const { rect, handle } = item
+          if (rect && handle) {
+            if (
+              isInsideRect(
+                pos.x,
+                pos.y,
+                rect.x,
+                rect.y,
+                rect.width,
+                rect.height
+              )
+            ) {
+              handle(event, pos)
+            }
+          }
+        })
       }
 
       const getPosition = (event: MouseEvent & TouchEvent) => {

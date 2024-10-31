@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils"
 import { Icons } from "@/shared/icons"
 import { useEffect } from "react"
 
+enum ToolType {}
+
 export default function HeadTool({
   color: curColor,
   tool,
@@ -67,6 +69,18 @@ export default function HeadTool({
           V
         </span>
       </div>
+      <div
+        className={cn(
+          "relative w-[40px] h-[40px] flex items-center justify-center  cursor-pointer",
+          tool === "Hand" ? "bg-red-200" : "bg-gray-200"
+        )}
+        onClick={() => onToolChange("Hand")}
+      >
+        <Icons.hand strokeWidth={2.5} className="relative w-5 h-5" />
+        <span className="absolute bottom-0 right-0 text-[10px] w-[10px]">
+          H
+        </span>
+      </div>
       <div className="flex-1"></div>
       <div
         className={cn(
@@ -93,6 +107,8 @@ export default function HeadTool({
             onToolChange("Pen")
           } else if (type === "v") {
             onToolChange("Move")
+          } else if (type === "h") {
+            onToolChange("Hand")
           }
         }}
       />
@@ -103,7 +119,6 @@ export default function HeadTool({
 const KeyBindBox = ({ onEvent }: { onEvent: (key: string) => void }) => {
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
-      console.log(1)
       let key = event.key.toLowerCase()
       if (key === "e") {
         onEvent(key)
@@ -111,9 +126,10 @@ const KeyBindBox = ({ onEvent }: { onEvent: (key: string) => void }) => {
         onEvent(key)
       } else if (key === "v") {
         onEvent(key)
+      } else if (key === "h") {
+        onEvent(key)
       }
     }
-
     document.addEventListener("keydown", handleKeyPress)
     return () => {
       document.removeEventListener("keydown", handleKeyPress)

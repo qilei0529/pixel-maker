@@ -10,6 +10,7 @@ type IDataState = {
   layer: number
   pixelSize: number
   size: { width: number; height: number }
+  offset: { x: number; y: number }
 }
 
 export type ILayerData = {
@@ -45,6 +46,7 @@ type IDataAction = {
   toggleHideLayer: (layer: number) => void
 
   setLayer: (layer: number) => void
+  setOffset: (offset: { x: number; y: number }) => void
 }
 
 export const useDataStore = create<IDataState & IDataAction>()(
@@ -62,6 +64,8 @@ export const useDataStore = create<IDataState & IDataAction>()(
         pixelMap: {},
         pixelSize: 20,
         size: { width: 0, height: 0 },
+
+        offset: { x: 0, y: 0 },
 
         initData() {
           // let { size, pixels } = get()
@@ -104,6 +108,12 @@ export const useDataStore = create<IDataState & IDataAction>()(
           console.log("save data")
           useDataStore.setState({
             pixelMap: data,
+          })
+        },
+
+        setOffset(offset) {
+          useDataStore.setState({
+            offset: offset,
           })
         },
 
