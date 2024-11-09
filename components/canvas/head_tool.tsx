@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { Icons } from "@/shared/icons"
-import { useEffect } from "react"
+import { ReactNode, useEffect } from "react"
 
 enum ToolType {}
 
@@ -33,54 +33,30 @@ export default function HeadTool({
           }}
         ></div>
       </div>
-      <div
-        className={cn(
-          "relative w-[40px] h-[40px] flex items-center justify-center  cursor-pointer",
-          tool === "Pen" ? "bg-red-200" : "bg-gray-200"
-        )}
+      <ToolIcon
+        icon={<Icons.pencel strokeWidth={2.5} className="relative w-5 h-5" />}
         onClick={() => onToolChange("Pen")}
-      >
-        <Icons.pencel strokeWidth={2.5} className="relative w-5 h-5" />
-        <span className="absolute bottom-0 right-0 text-[10px] w-[10px]">
-          B
-        </span>
-      </div>
-      <div
-        className={cn(
-          "relative w-[40px] h-[40px] flex items-center justify-center  cursor-pointer",
-          tool === "Eraser" ? "bg-red-200" : "bg-gray-200 hover:bg-red-200"
-        )}
+        selected={tool === "Pen"}
+        label="B"
+      />
+      <ToolIcon
+        icon={<Icons.eraser strokeWidth={2.5} className="relative w-5 h-5" />}
         onClick={() => onToolChange("Eraser")}
-      >
-        <Icons.eraser strokeWidth={2.5} className="relative w-5 h-5" />
-        <span className="absolute bottom-0 right-0 text-[10px] w-[10px]">
-          E
-        </span>
-      </div>
-      <div
-        className={cn(
-          "relative w-[40px] h-[40px] flex items-center justify-center  cursor-pointer",
-          tool === "Move" ? "bg-red-200" : "bg-gray-200"
-        )}
+        selected={tool === "Eraser"}
+        label="E"
+      />
+      <ToolIcon
+        icon={<Icons.move strokeWidth={2.5} className="relative w-5 h-5" />}
         onClick={() => onToolChange("Move")}
-      >
-        <Icons.move strokeWidth={2.5} className="relative w-5 h-5" />
-        <span className="absolute bottom-0 right-0 text-[10px] w-[10px]">
-          V
-        </span>
-      </div>
-      <div
-        className={cn(
-          "relative w-[40px] h-[40px] flex items-center justify-center  cursor-pointer",
-          tool === "Hand" ? "bg-red-200" : "bg-gray-200"
-        )}
+        selected={tool === "Move"}
+        label="V"
+      />
+      <ToolIcon
+        icon={<Icons.hand strokeWidth={2.5} className="relative w-5 h-5" />}
         onClick={() => onToolChange("Hand")}
-      >
-        <Icons.hand strokeWidth={2.5} className="relative w-5 h-5" />
-        <span className="absolute bottom-0 right-0 text-[10px] w-[10px]">
-          H
-        </span>
-      </div>
+        selected={tool === "Hand"}
+        label="H"
+      />
       <div className="flex-1"></div>
       <div
         className={cn(
@@ -136,4 +112,34 @@ const KeyBindBox = ({ onEvent }: { onEvent: (key: string) => void }) => {
     }
   }, [])
   return null
+}
+
+/**
+ * ToolIcon
+ */
+function ToolIcon({
+  icon,
+  label,
+  selected,
+  onClick,
+}: {
+  icon: ReactNode
+  label: string
+  selected: boolean
+  onClick: () => void
+}) {
+  return (
+    <div
+      className={cn(
+        "relative w-[40px] h-[40px] flex items-center justify-center  cursor-pointer",
+        selected ? "bg-red-200" : "bg-gray-200"
+      )}
+      onClick={onClick}
+    >
+      {icon}
+      <span className="absolute bottom-0 right-0 text-[10px] w-[10px]">
+        {label}
+      </span>
+    </div>
+  )
 }
