@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { ReactNode, useEffect, useMemo, useState } from "react"
 import { Stage, Layer, Rect, RectTouchEvent } from "./my_canvas"
 
 export default function BoardCanvas({
@@ -14,6 +14,8 @@ export default function BoardCanvas({
   onDraw,
   onMove,
   onMoveEnd,
+  children,
+  tool,
 }: {
   size: { width: number; height: number }
   moveOffset: { x: number; y: number }
@@ -28,6 +30,8 @@ export default function BoardCanvas({
   onDrawEnd?: (event: any, touch: RectTouchEvent) => void
   onMove?: (size: { width: number; height: number }) => void
   onMoveEnd?: (size: { width: number; height: number }) => void
+  children?: ReactNode
+  tool?: string
 }) {
   const screenSize = useMemo(() => {
     return {
@@ -61,15 +65,6 @@ export default function BoardCanvas({
     )
   }, [size, vSize, viewPixelSize])
 
-  const [midOffset, setMidOffset] = useState({ x: 0, y: 0 })
-  useEffect(() => {
-    let ratio = pixelSize / viewPixelSize
-    setMidOffset({
-      x: Math.floor((vSize.width / ratio - size.width) / 2),
-      y: Math.floor((vSize.height / ratio - size.height) / 2),
-    })
-  }, [size, vSize, pixelSize, viewPixelSize])
-
   return (
     <div
       className="relative"
@@ -86,28 +81,26 @@ export default function BoardCanvas({
         onMouseMoveEnd={(e, size) => onMoveEnd?.(size)}
         onMouseDraw={(e, touch: RectTouchEvent) => {
           const pixel = {
-            x: Math.floor(touch.x / pixelSize - viewOffset.x - midOffset.x),
-            y: Math.floor(touch.y / pixelSize - viewOffset.y - midOffset.y),
+            x: Math.floor(touch.x / pixelSize - viewOffset.x),
+            y: Math.floor(touch.y / pixelSize - viewOffset.y),
           }
           onDraw?.(event, { ...touch, x: pixel.x, y: pixel.y })
         }}
       >
         <Layer>
           {pixels.map((pixel, index) => {
-            let curLayer = layer === pixel.layer
+            let isMove = false
+
+            if (tool === "Move") {
+              isMove = layer === pixel.layer
+            } else if (tool === "Hand") {
+              isMove = true
+            }
 
             let x =
-              (pixel.x +
-                (curLayer ? moveOffset.x : 0) +
-                viewOffset.x +
-                midOffset.x) *
-              pixelSize
+              (pixel.x + (isMove ? moveOffset.x : 0) + viewOffset.x) * pixelSize
             let y =
-              (pixel.y +
-                (curLayer ? moveOffset.y : 0) +
-                viewOffset.y +
-                midOffset.y) *
-              pixelSize
+              (pixel.y + (isMove ? moveOffset.y : 0) + viewOffset.y) * pixelSize
 
             // check curLayer ishide
             let layerItem = layerVos[pixel.layer]
@@ -126,22 +119,7 @@ export default function BoardCanvas({
         </Layer>
       </Stage>
       {board}
-      {size.width > 0 ? (
-        <div
-          className="absolute z-10 pointer-events-none border-[2px] border-red-600"
-          style={{
-            width: size.width * pixelSize,
-            height: size.height * pixelSize,
-            top: 0,
-            left: 0,
-            transform: `translate(${midOffset.x * pixelSize}px, ${
-              midOffset.y * pixelSize
-            }px)`,
-          }}
-        >
-          <div className="absolute top-[-16px] left-[-2px] px-1 text-[12px] text-white bg-red-600 h-[16px] flex items-center rounded-t-sm">{`${size.width}x${size.height}`}</div>
-        </div>
-      ) : null}
+      {children}
     </div>
   )
 }

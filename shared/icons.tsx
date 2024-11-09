@@ -11,7 +11,9 @@ import {
   Hand,
   PanelRightClose,
   PanelRightOpen,
+  Square,
 } from "lucide-react"
+
 export const Icons = {
   pencel: Pencil,
   eraser: Eraser,
@@ -29,6 +31,8 @@ export const Icons = {
 
   sideOpen: PanelRightOpen,
   sideFold: PanelRightClose,
+
+  square: Square,
 
   twitter: ({ ...props }: LucideProps) => (
     <svg

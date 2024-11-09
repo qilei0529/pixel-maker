@@ -57,23 +57,27 @@ export default function HeadTool({
         selected={tool === "Hand"}
         label="H"
       />
+      <ToolIcon
+        icon={<Icons.square strokeWidth={2.5} className="relative w-5 h-5" />}
+        onClick={() => onToolChange("Cutter")}
+        selected={tool === "Cutter"}
+        label="S"
+      />
       <div className="flex-1"></div>
-      <div
-        className={cn(
-          "w-[40px] h-[40px] flex items-center justify-center bg-gray-200",
-          tool === "Eraser"
-            ? "bg-red-200 hover:bg-red-400 cursor-pointer"
-            : "opacity-50 "
-        )}
+
+      <ToolIcon
+        icon={<Icons.brush strokeWidth={2.5} className="relative w-5 h-5" />}
         onClick={() => {
           if (tool === "Eraser") {
             onAction("Clear")
             onToolChange("Pen")
           }
         }}
-      >
-        <Icons.brush strokeWidth={2.5} className="relative w-5 h-5" />
-      </div>
+        selected={tool === "Eraser"}
+        disable={tool !== "Eraser"}
+        label="C"
+      />
+
       <KeyBindBox
         onEvent={(type) => {
           // key
@@ -85,6 +89,8 @@ export default function HeadTool({
             onToolChange("Move")
           } else if (type === "h") {
             onToolChange("Hand")
+          } else if (type === "s") {
+            onToolChange("Cutter")
           }
         }}
       />
@@ -104,6 +110,8 @@ const KeyBindBox = ({ onEvent }: { onEvent: (key: string) => void }) => {
         onEvent(key)
       } else if (key === "h") {
         onEvent(key)
+      } else if (key === "s") {
+        onEvent(key)
       }
     }
     document.addEventListener("keydown", handleKeyPress)
@@ -122,17 +130,23 @@ function ToolIcon({
   label,
   selected,
   onClick,
+  className,
+  disable,
 }: {
   icon: ReactNode
   label: string
   selected: boolean
+  className?: string
+  disable?: boolean
   onClick: () => void
 }) {
   return (
     <div
       className={cn(
         "relative w-[40px] h-[40px] flex items-center justify-center  cursor-pointer",
-        selected ? "bg-red-200" : "bg-gray-200"
+        selected ? "bg-red-200" : "bg-gray-200",
+        disable ? " opacity-50" : "",
+        className
       )}
       onClick={onClick}
     >

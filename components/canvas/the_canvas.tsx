@@ -66,8 +66,28 @@ export const PixelCanvas = () => {
   }
 
   const [curColor, setColor] = useState("black")
+
+  const [viewSize, setViewSize] = useState({ width: 0, height: 0 })
+  // total layer offset
+  // const [offset, setOffset] = useState({ x: 0, y: 0 })
+  const offset = useDataStore((state) => state.offset)
+  const setOffset = useDataStore((state) => state.setOffset)
+  // move offset
   const [moveOffset, setMoveOffset] = useState({ x: 0, y: 0 })
-  const [viewOffset, setViewOffset] = useState({ x: 0, y: 0 })
+
+  // 居中偏移
+  const [midOffset, setMidOffset] = useState({ x: 0, y: 0 })
+
+  useEffect(() => {
+    let ratio = pixelSize / viewPixelSize
+    setMidOffset({
+      x: Math.floor((viewSize.width / ratio - size.width) / 2),
+      y: Math.floor((viewSize.height / ratio - size.height) / 2),
+    })
+  }, [size, viewSize, pixelSize, viewPixelSize])
+
+  // 切片偏移位置
+  const [cutOffset, setCutOffset] = useState({ x: 0, y: 0 })
 
   const handleDraw = (event: Event, touch: RectTouchEvent) => {
     if (isDrawing(tool)) {
@@ -92,14 +112,8 @@ export const PixelCanvas = () => {
     }
     let x = Math.floor(size.width / pixelSize)
     let y = Math.floor(size.height / pixelSize)
-    if (tool == "Move") {
-      setMoveOffset({ x, y })
-    } else {
-      setViewOffset({ x: x, y: y })
-    }
+    setMoveOffset({ x, y })
   }
-
-  const [offset, setOffset] = useState({ x: 0, y: 0 })
 
   const handleMoveEnd = (size: { width: number; height: number }) => {
     if (isDrawing(tool)) {
@@ -108,13 +122,16 @@ export const PixelCanvas = () => {
     if (tool == "Move") {
       setPixels(movePixels({ x: moveOffset.x, y: moveOffset.y }, layer))
       setMoveOffset({ x: 0, y: 0 })
+    } else if (tool == "Cutter") {
+      setCutOffset({
+        x: cutOffset.x + moveOffset.x,
+        y: cutOffset.y + moveOffset.y,
+      })
     } else {
-      setOffset({ x: offset.x + viewOffset.x, y: viewOffset.y + offset.y })
-      setViewOffset({ x: 0, y: 0 })
+      setOffset({ x: offset.x + moveOffset.x, y: offset.y + moveOffset.y })
     }
+    setMoveOffset({ x: 0, y: 0 })
   }
-
-  const [viewSize, setViewSize] = useState({ width: 0, height: 0 })
 
   const [showSide, setShowSide] = useState(false)
 
@@ -195,7 +212,10 @@ export const PixelCanvas = () => {
         moveOffset={moveOffset}
         viewSize={viewSize}
         viewPixelSize={viewPixelSize}
-        viewOffset={{ x: viewOffset.x + offset.x, y: viewOffset.y + offset.y }}
+        viewOffset={{
+          x: offset.x + midOffset.x,
+          y: offset.y + midOffset.y,
+        }}
         pixels={pixels}
         layer={layer}
         layers={layers}
@@ -204,7 +224,20 @@ export const PixelCanvas = () => {
         onDrawEnd={handleDrawEnd}
         onMove={handleMove}
         onMoveEnd={handleMoveEnd}
-      />
+        tool={tool}
+      >
+        <CutterPanel
+          tool={tool}
+          size={size}
+          pixelSize={pixelSize}
+          offset={{
+            x:
+              cutOffset.x + midOffset.x + (tool == "Cutter" ? moveOffset.x : 0),
+            y:
+              cutOffset.y + midOffset.y + (tool == "Cutter" ? moveOffset.y : 0),
+          }}
+        />
+      </BoardCanvas>
       {/* mask */}
       {showColorPicker ? (
         <div
@@ -278,7 +311,10 @@ export const PixelCanvas = () => {
               layers={layers}
               size={size}
               pixels={pixels}
-              offset={offset}
+              offset={{
+                x: offset.x - cutOffset.x,
+                y: offset.y - cutOffset.y,
+              }}
             />
           </div>
           <div className="flex flex-row justify-center items-center p-2">
@@ -286,7 +322,10 @@ export const PixelCanvas = () => {
               layers={layers}
               size={size}
               pixels={pixels}
-              offset={offset}
+              offset={{
+                x: offset.x - cutOffset.x,
+                y: offset.y - cutOffset.y,
+              }}
             />
           </div>
         </div>
@@ -305,6 +344,39 @@ export const PixelCanvas = () => {
       sider={sider}
       rightPanel={rightPanel}
     />
+  )
+}
+
+function CutterPanel({
+  size,
+  pixelSize,
+  offset,
+  tool,
+}: {
+  size: { width: number; height: number }
+  pixelSize: number
+  offset: { x: number; y: number }
+  tool: string
+}) {
+  return (
+    <>
+      {size.width > 0 ? (
+        <div
+          className="absolute z-10 pointer-events-none border-[2px] border-red-600"
+          style={{
+            width: size.width * pixelSize,
+            height: size.height * pixelSize,
+            top: 0,
+            left: 0,
+            transform: `translate(${offset.x * pixelSize}px, ${
+              offset.y * pixelSize
+            }px)`,
+          }}
+        >
+          <div className="absolute top-[-16px] left-[-2px] px-1 text-[12px] text-white bg-red-600 h-[16px] flex items-center rounded-t-sm">{`${size.width}x${size.height}`}</div>
+        </div>
+      ) : null}
+    </>
   )
 }
 
