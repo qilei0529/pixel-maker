@@ -19,7 +19,7 @@ export default function Layout({
       <div className="absolute top-[40px] left-0 right-0 z-50 flex flex-row items-center justify-center">
         {header}
       </div>
-      <div className="absolute top-[80px] left-0 z-20">{sider}</div>
+      <div className="absolute top-[90px] left-0 z-20">{sider}</div>
       <div className="absolute top-[80px] right-0 z-20">
         <div className="flex flex-row sm:flex-col mb-4 sm:mb-0 flex-1 sm:py-4">
           {rightPanel}

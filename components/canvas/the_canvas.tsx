@@ -221,6 +221,28 @@ export const PixelCanvas = () => {
       </div>
       <div
         className={cn(
+          "absolute top-[0px] right-[-68px]",
+          tool === "Eraser" ? "block" : "hidden"
+        )}
+      >
+        <div className="px-3 pb-3 flex flex-row items-center justify-center bg-white rounded-b-2xl shadow-black-200 shadow-lg">
+          <ToolIcon
+            icon={
+              <Icons.brush strokeWidth={2.5} className="relative w-5 h-5" />
+            }
+            onClick={() => {
+              if (tool === "Eraser") {
+                // onAction("Clear")
+                // onToolChange("Pen")
+              }
+            }}
+            selected={tool === "Eraser"}
+            label="C"
+          />
+        </div>
+      </div>
+      <div
+        className={cn(
           "absolute top-[52px] left-[136px]",
           tool === "Hand" ? "block" : "hidden"
         )}

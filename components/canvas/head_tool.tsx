@@ -4,8 +4,6 @@ import { cn } from "@/lib/utils"
 import { Icons } from "@/shared/icons"
 import { ReactNode, useEffect } from "react"
 
-enum ToolType {}
-
 export default function HeadTool({
   color: curColor,
   tool,
@@ -62,20 +60,6 @@ export default function HeadTool({
         onClick={() => onToolChange("Cutter")}
         selected={tool === "Cutter"}
         label="S"
-      />
-      <div className="flex-1"></div>
-
-      <ToolIcon
-        icon={<Icons.brush strokeWidth={2.5} className="relative w-5 h-5" />}
-        onClick={() => {
-          if (tool === "Eraser") {
-            onAction("Clear")
-            onToolChange("Pen")
-          }
-        }}
-        selected={tool === "Eraser"}
-        disable={tool !== "Eraser"}
-        label="C"
       />
 
       <KeyBindBox
