@@ -1,17 +1,11 @@
 import { FC, ReactNode, useMemo } from "react"
 
 export default function Layout({
-  size,
-  pixelSize,
-
   header,
   content,
   sider,
   rightPanel,
 }: {
-  size: { width: number; height: number }
-  pixelSize: number
-
   header?: any
   content?: any
   sider?: any

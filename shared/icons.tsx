@@ -12,6 +12,8 @@ import {
   PanelRightClose,
   PanelRightOpen,
   Square,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react"
 
 export const Icons = {
@@ -33,6 +35,8 @@ export const Icons = {
   sideFold: PanelRightClose,
 
   square: Square,
+  zoomIn: ZoomIn,
+  zoomOut: ZoomOut,
 
   twitter: ({ ...props }: LucideProps) => (
     <svg

@@ -114,8 +114,11 @@ export const useDataStore = create<IDataState & IDataAction>()(
           })
         },
 
-        clearData() {
+        clearData(layer) {
           const { pixels, saveData, getData, pixelMap } = get()
+          if (layer != undefined) {
+          } else {
+          }
           saveData({})
           // reset layer
           set({

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useDataStore } from "@/client/stores/data"
 
 import { cn } from "@/lib/utils"
@@ -10,12 +10,13 @@ import ColorPanel from "./color_panel"
 import MiniMapPanel from "./mini_map_panel"
 import SavePanel from "./save_button"
 import BoardCanvas from "./board_canvas"
-import HeadTool from "./head_tool"
+import HeadTool, { ToolIcon } from "./head_tool"
 import Layout from "./layout"
 import LayerPanel from "./layer_panel"
 import { RectTouchEvent } from "./my_canvas"
 import { SizeSwitcher } from "./size_switcher"
 import { ColorPickerPanel } from "./color_picker"
+import { CutterPanel } from "./cutter_panel"
 
 export const PixelCanvas = () => {
   const tool = useDataStore((state) => state.tool)
@@ -42,14 +43,19 @@ export const PixelCanvas = () => {
   const moveLayer = useDataStore((state) => state.moveLayer)
   const removeLayer = useDataStore((state) => state.removeLayer)
 
-  const viewPixelSize = 16
-
   // MARK: init data
   useEffect(() => {
     const data = getData()
     setPixels(data)
     setPixelSize(16)
-  }, [pixelSize, size, getData, setPixelSize])
+  }, [getData, setPixelSize])
+
+  const viewPixelSize = useMemo(() => {
+    if (pixelSize <= 8) {
+      return 8
+    }
+    return 16
+  }, [pixelSize])
 
   useEffect(() => {
     setPixels(
@@ -61,8 +67,19 @@ export const PixelCanvas = () => {
       setShowSide(true)
     }
   }, [pixelMap])
+
   const clearAll = () => {
-    clearData()
+    clearData(layer)
+  }
+
+  const togglePixelSize = (flag: number) => {
+    const pixelMap = [2, 4, 8, 16, 32]
+    const index = pixelMap.indexOf(pixelSize)
+
+    let targetIndex = Math.min(Math.max(index + flag, 0), pixelMap.length - 1)
+    let targetVal = pixelMap[targetIndex]
+    console.log(targetIndex, targetVal)
+    setPixelSize(targetVal)
   }
 
   const [curColor, setColor] = useState("black")
@@ -146,7 +163,7 @@ export const PixelCanvas = () => {
       width: w,
       height: h,
     })
-  }, [])
+  }, [viewPixelSize])
 
   const updateSize = ({
     width,
@@ -201,6 +218,32 @@ export const PixelCanvas = () => {
             setColor(val.hex)
           }}
         />
+      </div>
+      <div
+        className={cn(
+          "absolute top-[52px] left-[136px]",
+          tool === "Hand" ? "block" : "hidden"
+        )}
+      >
+        <div className="px-3 pb-3 flex flex-row items-center justify-center bg-white rounded-b-2xl shadow-black-200 shadow-lg">
+          <ToolIcon
+            icon={
+              <Icons.zoomOut strokeWidth={2.5} className="relative w-5 h-5" />
+            }
+            onClick={() => togglePixelSize(-1)}
+            selected={false}
+            label=""
+          />
+          <div className="w-[56px] text-center text-[12px]">{pixelSize}px</div>
+          <ToolIcon
+            icon={
+              <Icons.zoomIn strokeWidth={2.5} className="relative w-5 h-5" />
+            }
+            onClick={() => togglePixelSize(1)}
+            selected={false}
+            label=""
+          />
+        </div>
       </div>
     </div>
   )
@@ -337,87 +380,10 @@ export const PixelCanvas = () => {
 
   return (
     <Layout
-      size={size}
-      pixelSize={pixelSize}
       header={header}
       content={content}
       sider={sider}
       rightPanel={rightPanel}
     />
-  )
-}
-
-function CutterPanel({
-  size,
-  pixelSize,
-  offset,
-  tool,
-}: {
-  size: { width: number; height: number }
-  pixelSize: number
-  offset: { x: number; y: number }
-  tool: string
-}) {
-  return (
-    <>
-      {size.width > 0 ? (
-        <div
-          className="absolute z-10 pointer-events-none border-[2px] border-red-600"
-          style={{
-            width: size.width * pixelSize,
-            height: size.height * pixelSize,
-            top: 0,
-            left: 0,
-            transform: `translate(${offset.x * pixelSize}px, ${
-              offset.y * pixelSize
-            }px)`,
-          }}
-        >
-          <div className="absolute top-[-16px] left-[-2px] px-1 text-[12px] text-white bg-red-600 h-[16px] flex items-center rounded-t-sm">{`${size.width}x${size.height}`}</div>
-        </div>
-      ) : null}
-    </>
-  )
-}
-
-function ParseCanvas() {
-  const [imageSrc, setImageSrc] = useState<string | null>(null)
-  useEffect(() => {
-    const handlePaste = async (event: ClipboardEvent) => {
-      const clipboardItems = event.clipboardData?.items
-
-      if (clipboardItems) {
-        for (let i = 0; i < clipboardItems.length; i++) {
-          const item = clipboardItems[i]
-
-          // 如果剪贴板中的项目是图片
-          if (item.type.startsWith("image/")) {
-            const blob = item.getAsFile()
-            if (blob) {
-              const imageUrl = URL.createObjectURL(blob)
-
-              // 设置图片 URL 到 state 以便展示图片
-              setImageSrc(imageUrl)
-            }
-          }
-        }
-      }
-    }
-
-    window.addEventListener("paste", handlePaste)
-
-    return () => {
-      window.removeEventListener("paste", handlePaste)
-    }
-  }, [])
-  return (
-    <div>
-      <h1>Paste an image here</h1>
-      {imageSrc ? (
-        <img src={imageSrc} alt="Pasted" style={{ maxWidth: "100%" }} />
-      ) : (
-        <p>No image pasted yet</p>
-      )}
-    </div>
   )
 }

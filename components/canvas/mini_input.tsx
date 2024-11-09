@@ -37,6 +37,10 @@ export function MiniInput({
       document.addEventListener("keydown", handleKeyPress)
     }
     const handleBlur = () => {
+      if (inputRef.current) {
+        onConfirm(inputRef.current)
+        inputRef.current.value = ""
+      }
       document.removeEventListener("keydown", handleKeyPress)
     }
     const inputElement = inputRef.current

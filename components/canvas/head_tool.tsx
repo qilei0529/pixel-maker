@@ -125,7 +125,7 @@ const KeyBindBox = ({ onEvent }: { onEvent: (key: string) => void }) => {
 /**
  * ToolIcon
  */
-function ToolIcon({
+export function ToolIcon({
   icon,
   label,
   selected,

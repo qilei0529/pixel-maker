@@ -138,14 +138,14 @@ function DashBoard({
       width: vSize.width * viewPixelSize,
       height: vSize.height * viewPixelSize,
     }
-  }, [size])
+  }, [vSize, viewPixelSize])
 
   const viewSize = useMemo(() => {
     return {
       width: Math.floor(screenSize.width / viewPixelSize),
       height: Math.floor(screenSize.height / viewPixelSize),
     }
-  }, [screenSize])
+  }, [screenSize, viewPixelSize])
 
   const boardPixels = useMemo(() => {
     let newPixels: { x: number; y: number }[] = []
